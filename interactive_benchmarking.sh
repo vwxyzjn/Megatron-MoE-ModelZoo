@@ -72,7 +72,7 @@ if [[ ${PROFILE} -eq 1 ]]; then
     NSYS_PATH="${OUTPUT_PATH}/nsys"
     DATETIME=$(date +'date_%y-%m-%d_time_%H-%M-%S')
     mkdir -p "${NSYS_PATH}"
-    PROFILE_CMD="nsys profile --sample=none --cpcuctxsw=none -t cuda,nvtx \
+    PROFILE_CMD="nsys profile --sample=none --cpuctxsw=none -t cuda,nvtx \
         --capture-range=cudaProfilerApi \
         --capture-range-end=stop \
         --cuda-memory-usage true \
