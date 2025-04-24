@@ -43,6 +43,7 @@ MODEL_ARGS:
   --cross-entropy-loss-fusion: true
   --cross-entropy-fusion-impl: te # TODO: This is an EA feature, only available in te 2.2
   --mla-yarn-rope-fusion: true # TODO: This is an EA feature
+  --disable-bf16-reduced-precision-matmul: true
   # --recompute-granularity: selective
   # --recompute-modules: mla_up_proj layernorm
 
