@@ -1,32 +1,34 @@
 ENV_VARS:
-  CUDA_DEVICE_MAX_CONNECTIONS: 1
-  TORCH_NCCL_AVOID_RECORD_STREAMS: 1
+  CUDA_DEVICE_MAX_CONNECTIONS: 32 # TODO: set to 1 if not using 1F1B overlapping
+  TORCH_NCCL_AVOID_RECORD_STREAMS: 0
   NVTE_ALLOW_NONDETERMINISTIC_ALGO: 1
   PYTORCH_CUDA_ALLOC_CONF: expandable_segments:True
   NCCL_NVLS_ENABLE: 0
   NVTE_FUSED_ATTN: 1
+  NVTE_FWD_LAYERNORM_SM_MARGIN: 20 # TODO: set to 0 if not using 1F1B overlapping
+  NVTE_BWD_LAYERNORM_SM_MARGIN: 20 # TODO: set to 0 if not using 1F1B overlapping
+  NVTE_NORM_FWD_USE_CUDNN: 1
+  NVTE_NORM_BWD_USE_CUDNN: 1
+  PYTHONWARNINGS: ignore
+  NCCL_DEBUG: VERSION
 
-  # 128 Nodes
-  # MODEL=DeepSeek-V3 PP=16 VPP=1 TP=1 EP=64 RUN_TIME=04:00:00 NNODES=128 GBS=8192 bash sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules mla_up_proj layernorm moe
-  # MODEL=DeepSeek-V3 PP=16 VPP=1 TP=2 EP=64 NNODES=128 GBS=8192 RUN_TIME=04:00:00 bash sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules mla_up_proj layernorm --moe-track-imbalance-rate
-  # MODEL=DeepSeek-V3 PP=16 VPP=1 TP=2 EP=64 NNODES=128 GBS=8192 RUN_TIME=00:20:00 bash sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules mla_up_proj layernorm --moe-track-imbalance-rate --moe-router-force-load-balancing
-
-  # 64 Nodes
-  # MODEL=DeepSeek-V3 PP=8 VPP=1 TP=4 EP=32 PP_FIRST=8 PP_LAST=5 NNODES=64 GBS=8192 RUN_TIME=00:40:00 bash sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules mla_up_proj layernorm --moe-track-imbalance-rate --moe-router-force-load-balancing
+  # 128 Nodes w/ MTP w 1F1B overlapping
+  # NOTE: currently, this default setting relies on the tuned-ckpt in CW cluster, it will OOM with the HF checkpoint
+  # NOTE: with HF checkpoint, please put the MTP into the postprocess stage, please refer to the args below
+  # MODEL=DeepSeek-V3 PP=8 VPP=4 TP=2 EP=64 NNODES=128 GBS=8192 PR=fp8 bash sbatch_benchmarking.sh
 
 MODEL_ARGS:
   # Distributed args
   --distributed-timeout-minutes: 60
   --tensor-model-parallel-size: ${TP}
   --pipeline-model-parallel-size: ${PP}
-  --decoder-first-pipeline-num-layers: ${PP_FIRST}
-  --decoder-last-pipeline-num-layers: ${PP_LAST}
   --expert-model-parallel-size: ${EP}
   --context-parallel-size: ${CP}
   --expert-tensor-parallel-size: 1
   --use-distributed-optimizer: true
-  --overlap-grad-reduce: true
-  --overlap-param-gather: true
+  # TODO: uncomment if not using --delay-wgrad-compute
+  # --overlap-grad-reduce: true
+  # --overlap-param-gather: true
 
   # Training args
   --use-mcore-models: true
@@ -37,21 +39,21 @@ MODEL_ARGS:
   --global-batch-size: ${GBS}
   --train-samples: 585937500
   --exit-duration-in-mins: 220
-  --no-save-optim: false
+  --no-save-optim: true
   --no-check-for-nan-in-loss-and-grad: true
-  --no-rope-fusion: true
   --cross-entropy-loss-fusion: true
   --cross-entropy-fusion-impl: te # TODO: This is an EA feature, only available in te 2.2
-  --mla-yarn-rope-fusion: true # TODO: This is an EA feature
+  --manual-gc: true
+  --manual-gc-interval: 10
   --disable-bf16-reduced-precision-matmul: true
-  # --recompute-granularity: selective
-  # --recompute-modules: mla_up_proj layernorm
+  --recompute-granularity: selective
+  --recompute-modules: mla_up_proj mlp
 
   # Transformer Engine args
   --transformer-impl: transformer_engine
 
   # Data args
-  --seq-length: ${SEQ_LEN}
+  --seq-length: 4096
   --data-cache-path: ${WORKSPACE}/data_cache
   --tokenizer-type: HuggingFaceTokenizer
   --tokenizer-model: deepseek-ai/DeepSeek-V3
@@ -76,9 +78,6 @@ MODEL_ARGS:
   --swiglu: true
   --untie-embeddings-and-output-weights: true
   --multi-latent-attention: true
-  # Comment out the following MTP args to disable MTP
-  --mtp-num-layers: 1
-  --mtp-loss-scaling-factor: 0.1
 
   # Add regularization args
   --attention-dropout: 0.0
@@ -105,10 +104,10 @@ MODEL_ARGS:
   --moe-shared-expert-intermediate-size: 2048
   --moe-router-load-balancing-type: seq_aux_loss
   --moe-router-topk: 8
-  --moe-token-dispatcher-type: ${MOE_TOKEN_DISPATCHER}
+  --moe-token-dispatcher-type: flex
   --moe-enable-deepep: true
   --moe-router-pre-softmax: true
-  --moe-grouped-gemm: ${MOE_GROUPED_GEMM}
+  --moe-grouped-gemm: true
   --moe-aux-loss-coeff: 1e-4
   --moe-router-group-topk: 4
   --moe-router-num-groups: 8
@@ -129,12 +128,31 @@ MODEL_ARGS:
   --mscale: 1.0
   --mscale-all-dim: 1.0
 
+  # EA: Add 1F1B overlapping
+  --combined-1f1b: true
+  --delay-wgrad-compute: true
+  # EA: Add MTP and parallel layout args
+  # enable MTP with 1F1B overlapping, need the tuned-ckpt in CW cluster
+  --pipeline-model-parallel-layout: Et*3|(tt|)*29m|L
+  --mtp-num-layers: 1
+  --mtp-loss-scaling-factor: 0.1
+  --mtp-1f1b-overlap: true
+  # !!!!!!!!!!!! use below settings with HF checkpoint !!!!!!!!!!!!
+  # # put MTP into the postprocess stage
+  # --pipeline-model-parallel-layout: Et|(tt|)*30mL
+  # --mtp-num-layers: 1
+  # --mtp-loss-scaling-factor: 0.1
+  # # disable MTP
+  # --pipeline-model-parallel-layout: Et|(tt|)*30L
+
   # Add validation args
   --eval-iters: 32
   --eval-interval: 200
 
   # Add checkpointing args
-  --finetune: true
+  --finetune: false
+  --no-load-optim: true
+  --no-load-rng: true
   --auto-detect-ckpt-format: true
   --load: ${LOAD_PATH}
   --save: ${OUTPUT_PATH}/checkpoints
@@ -145,10 +163,10 @@ MODEL_ARGS:
   --init-method-std: 0.02
 
   # Add logging args
-  --log-timers-to-tensorboard: true
+  --log-timers-to-tensorboard: false
   --log-memory-to-tensorboard: true
-  --log-num-zeros-in-grad: true
-  --log-params-norm: true
+  --log-num-zeros-in-grad: false
+  --log-params-norm: false
   --log-validation-ppl-to-tensorboard: true
   --log-throughput: true
   --log-interval: 1

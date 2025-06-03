@@ -65,7 +65,9 @@ fi
 
 # FP8 arguments
 if [[ ${PR} == "fp8" ]]; then
-    TRAINING_PARAMS="${TRAINING_PARAMS} --fp8-format hybrid --fp8-amax-history-len 1024 --fp8-amax-compute-algo max"
+    TRAINING_PARAMS="${TRAINING_PARAMS} --fp8-recipe blockwise --fp8-format e4m3 --fp8-param-gather"
+    TRAINING_PARAMS="${TRAINING_PARAMS} --use-precision-aware-optimizer --main-grads-dtype fp32 --main-params-dtype fp32 --exp-avg-dtype bf16 --exp-avg-sq-dtype bf16"
+    TRAINING_PARAMS="${TRAINING_PARAMS} --moe-router-padding-for-fp8"
 fi
 
 # Profile command
