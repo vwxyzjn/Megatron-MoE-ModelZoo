@@ -42,7 +42,7 @@ MODEL_ARGS:
   --no-save-optim: true
   --no-check-for-nan-in-loss-and-grad: true
   --cross-entropy-loss-fusion: true
-  --cross-entropy-fusion-impl: te # TODO: This is an EA feature, only available in te 2.2
+  --cross-entropy-fusion-impl: native # TODO: TE implementation has a convergence issue!
   --manual-gc: true
   --manual-gc-interval: 10
   --disable-bf16-reduced-precision-matmul: true
