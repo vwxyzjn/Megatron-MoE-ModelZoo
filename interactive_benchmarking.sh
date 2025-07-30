@@ -34,7 +34,6 @@ fi
 TRAINING_PARAMS_FROM_CONFIG=$(yq '... comments="" | .MODEL_ARGS | to_entries | .[] | 
     select(.value != "false") | 
     with(select(.value == "true"); .value = "") | 
-    with(select(.key == "--pipeline-model-parallel-layout"); .value = (.value | @json)) | 
     [.key + " " + .value] | join("")' ${TRAINING_PARAMS_PATH} | tr '\n' ' ')
 TRAINING_PARAMS="${TRAINING_PARAMS} ${TRAINING_PARAMS_FROM_CONFIG}"
 
@@ -54,17 +53,52 @@ done < <(echo "${ENV_VARS}" | tr ' ' '\n')
 
 # Virtual pipeline parallelism arguments
 if [[ ${VPP} -gt 1 ]]; then
-    TRAINING_PARAMS="${TRAINING_PARAMS} --num-layers-per-virtual-pipeline-stage ${LAYERS_PER_VP}"
+    if [[ ! "${TRAINING_PARAMS}" =~ "--pipeline-model-parallel-layout" ]] && \
+       [[ ! "${TRAINING_PARAMS}" =~ "--num-virtual-stages-per-pipeline-rank" ]] && \
+       [[ ! "${TRAINING_PARAMS}" =~ "--num-layers-per-virtual-pipeline-stage" ]]; then
+        TRAINING_PARAMS="${TRAINING_PARAMS} --num-layers-per-virtual-pipeline-stage ${LAYERS_PER_VP}"
+    fi
 fi
 
 # Uneven pipeline parallelism arguments
 if [[ $((NUM_LAYERS % PP)) -ne 0 ]]; then
-    TRAINING_PARAMS="${TRAINING_PARAMS} --decoder-first-pipeline-num-layers ${PP_FIRST} --decoder-last-pipeline-num-layers ${PP_LAST}"
+    if [[ ! "${TRAINING_PARAMS}" =~ "--pipeline-model-parallel-layout" ]]; then
+        TRAINING_PARAMS="${TRAINING_PARAMS} --decoder-first-pipeline-num-layers ${PP_FIRST} --decoder-last-pipeline-num-layers ${PP_LAST}"
+    fi
+fi
+
+OPTIMIZER_OFFLOAD=${OPTIMIZER_OFFLOAD:-0}
+if [[ ${OPTIMIZER_OFFLOAD} == 1 ]]; then
+    TRAINING_PARAMS="${TRAINING_PARAMS} --optimizer-cpu-offload --overlap-cpu-optimizer-d2h-h2d"
 fi
 
 # FP8 arguments
 if [[ ${PR} == "fp8" ]]; then
-    TRAINING_PARAMS="${TRAINING_PARAMS} --fp8-format hybrid --fp8-amax-history-len 1024 --fp8-amax-compute-algo max"
+    TRAINING_PARAMS="${TRAINING_PARAMS} --fp8-recipe blockwise --fp8-format e4m3"
+    if [[ ${OPTIMIZER_OFFLOAD} == 0 ]]; then
+        TRAINING_PARAMS="${TRAINING_PARAMS} --fp8-param-gather" # Optimizer CPU offload does not support fp8 param gather now.
+    fi
+    TRAINING_PARAMS="${TRAINING_PARAMS} --use-precision-aware-optimizer --main-grads-dtype fp32 --main-params-dtype fp32 --exp-avg-dtype bf16 --exp-avg-sq-dtype bf16"
+    TRAINING_PARAMS="${TRAINING_PARAMS} --moe-router-padding-for-fp8"
+fi
+
+# 1F1B overlapping arguments and environment variables
+A2A_OVERLAP=${A2A_OVERLAP:-0}
+if [[ ${A2A_OVERLAP} == 1 ]]; then
+    export CUDA_DEVICE_MAX_CONNECTIONS=32
+    export NVTE_FWD_LAYERNORM_SM_MARGIN=20
+    export NVTE_BWD_LAYERNORM_SM_MARGIN=20
+    TRAINING_PARAMS="${TRAINING_PARAMS} --delay-wgrad-compute --overlap-moe-expert-parallel-comm"
+else
+    export CUDA_DEVICE_MAX_CONNECTIONS=1
+    export NVTE_FWD_LAYERNORM_SM_MARGIN=0
+    export NVTE_BWD_LAYERNORM_SM_MARGIN=0
+    TRAINING_PARAMS="${TRAINING_PARAMS} --overlap-grad-reduce --overlap-param-gather"
+fi
+
+# Long context arguments
+if [[ ${SEQ_LEN} -gt 4096 ]]; then
+    TRAINING_PARAMS="${TRAINING_PARAMS} --max-position-embeddings ${SEQ_LEN}"
 fi
 
 # Profile command
@@ -100,4 +134,12 @@ cd ${MEGATRON_PATH} || {
     echo "Error: Failed to change directory to ${MEGATRON_PATH}"
     exit 1
 }
-${PROFILE_CMD} torchrun ${DISTRIBUTED_ARGS[@]} ${TRAINING_SCRIPT_PATH} ${TRAINING_PARAMS}
+
+# Dry run check if set
+if [[ ${DRY_RUN:-0} -eq 1 ]]; then
+    echo "=== DRY RUN - Training Command ==="
+    echo "${PROFILE_CMD} torchrun ${DISTRIBUTED_ARGS[@]} ${TRAINING_SCRIPT_PATH} ${TRAINING_PARAMS}"
+    echo "=== End of DRY RUN ==="
+else
+    ${PROFILE_CMD} torchrun ${DISTRIBUTED_ARGS[@]} ${TRAINING_SCRIPT_PATH} ${TRAINING_PARAMS}
+fi
