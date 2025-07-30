@@ -1,21 +1,21 @@
 ENV_VARS:
-  CUDA_DEVICE_MAX_CONNECTIONS: 32 # TODO: set to 1 if not using 1F1B overlapping
   TORCH_NCCL_AVOID_RECORD_STREAMS: 0
   NVTE_ALLOW_NONDETERMINISTIC_ALGO: 1
   PYTORCH_CUDA_ALLOC_CONF: expandable_segments:True
   NCCL_NVLS_ENABLE: 0
   NVTE_FUSED_ATTN: 1
-  NVTE_FWD_LAYERNORM_SM_MARGIN: 20 # TODO: set to 0 if not using 1F1B overlapping
-  NVTE_BWD_LAYERNORM_SM_MARGIN: 20 # TODO: set to 0 if not using 1F1B overlapping
   NVTE_NORM_FWD_USE_CUDNN: 1
   NVTE_NORM_BWD_USE_CUDNN: 1
   PYTHONWARNINGS: ignore
   NCCL_DEBUG: VERSION
 
-  # 128 Nodes w/ MTP w 1F1B overlapping
-  # NOTE: currently, this default setting relies on the tuned-ckpt in CW cluster, it will OOM with the HF checkpoint
-  # NOTE: with HF checkpoint, please put the MTP into the postprocess stage, please refer to the args below
-  # MODEL=DeepSeek-V3 PP=8 VPP=4 TP=2 EP=64 NNODES=128 GBS=8192 PR=fp8 bash sbatch_benchmarking.sh
+  # Command for 128 Nodes w/ MTP and 1F1B overlapping:
+  # A2A_OVERLAP=1 MODEL=DeepSeek-V3 PP=8 VPP=4 TP=2 EP=64 NNODES=128 GBS=8192 PR=fp8 bash sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules mla_up_proj mlp --pipeline-model-parallel-layout "Et*3|(tt|)*29|L"
+  # Please refer to README for more best practices.
+
+  # NOTE: Currently, this default setting depends on the tuned-ckpt in the CW cluster and will cause OOM with the HF checkpoint.  
+  # Please move MTP to the postprocess stage. Refer to the args below.
+
 
 MODEL_ARGS:
   # Distributed args
@@ -26,7 +26,7 @@ MODEL_ARGS:
   --context-parallel-size: ${CP}
   --expert-tensor-parallel-size: 1
   --use-distributed-optimizer: true
-  # TODO: uncomment if not using --delay-wgrad-compute
+  # Note: uncomment if not using --delay-wgrad-compute
   # --overlap-grad-reduce: true
   # --overlap-param-gather: true
 
@@ -42,18 +42,15 @@ MODEL_ARGS:
   --no-save-optim: true
   --no-check-for-nan-in-loss-and-grad: true
   --cross-entropy-loss-fusion: true
-  --cross-entropy-fusion-impl: native # TODO: TE implementation has a convergence issue!
+  --cross-entropy-fusion-impl: te
   --manual-gc: true
   --manual-gc-interval: 10
-  --disable-bf16-reduced-precision-matmul: true
-  --recompute-granularity: selective
-  --recompute-modules: mla_up_proj mlp
 
   # Transformer Engine args
   --transformer-impl: transformer_engine
 
   # Data args
-  --seq-length: 4096
+  --seq-length: ${SEQ_LEN}
   --data-cache-path: ${WORKSPACE}/data_cache
   --tokenizer-type: HuggingFaceTokenizer
   --tokenizer-model: deepseek-ai/DeepSeek-V3
@@ -128,22 +125,13 @@ MODEL_ARGS:
   --mscale: 1.0
   --mscale-all-dim: 1.0
 
-  # EA: Add 1F1B overlapping
-  --combined-1f1b: true
-  --delay-wgrad-compute: true
-  # EA: Add MTP and parallel layout args
-  # enable MTP with 1F1B overlapping, need the tuned-ckpt in CW cluster
-  --pipeline-model-parallel-layout: Et*3|(tt|)*29m|L
+  # EA: Add 1F1B overlapping 
+  # Put the args in launch command so main and EA branch both can use this yaml config.
+  # --delay-wgrad-compute: true
+  # --overlap-moe-expert-parallel-comm: true
+
   --mtp-num-layers: 1
   --mtp-loss-scaling-factor: 0.1
-  --mtp-1f1b-overlap: true
-  # !!!!!!!!!!!! use below settings with HF checkpoint !!!!!!!!!!!!
-  # # put MTP into the postprocess stage
-  # --pipeline-model-parallel-layout: Et|(tt|)*30mL
-  # --mtp-num-layers: 1
-  # --mtp-loss-scaling-factor: 0.1
-  # # disable MTP
-  # --pipeline-model-parallel-layout: Et|(tt|)*30L
 
   # Add validation args
   --eval-iters: 32
