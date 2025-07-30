@@ -165,3 +165,6 @@ MODEL_ARGS:
 
   # Add mixed precision args
   --bf16: true
+
+  # Enable experimental args
+  --enable-experimental: true
