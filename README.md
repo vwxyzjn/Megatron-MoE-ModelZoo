@@ -136,6 +136,8 @@ All cluster configurations can be customized either through `cluster_configs/ben
 
 # DeepSeek Checkpoint Conversion
 
+| Please try [MBridge](https://github.com/ISEEKYAN/mbridge/) and [Megatron-Bridge](https://github.com/NVIDIA-NeMo/Megatron-Bridge) for better HF<->MCore conversion support.
+
 ### 1. Download DeepSeek-V3 Checkpoint
 
 Download the DeepSeek-V3 checkpoint from [HuggingFace](https://huggingface.co/deepseek-ai/DeepSeek-V3):
