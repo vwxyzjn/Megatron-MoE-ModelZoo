@@ -23,18 +23,11 @@ export RUN_TIME=00:30:00
 export COMMENT=baseline
 
 
-# Note: Add --moe-router-force-load-balancing for stable benchmarking
-# Inter-node EP solution
-TP=2 PP=8 VPP=4 EP=32 NNODES=32 GBS=2048 bash ./sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules moe_act layernorm --moe-router-force-load-balancing 
+# H100 baseline config
+A2A_OVERLAP=1 TP=2 PP=8 VPP=4 EP=32 NNODES=32 GBS=2048 bash ./sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules moe_act layernorm --moe-router-force-load-balancing
 
-# Inter-node EP + 1F1B overlap solution
-TP=2 PP=8 VPP=4 EP=32 NNODES=32 GBS=2048 bash ./sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules moe_act layernorm --combined-1f1b --combined-1f1b-recipe ep_a2a --moe-router-force-load-balancing 
+# B200 baseline config
+A2A_OVERLAP=1 TP=1 PP=4 VPP=24 EP=16 NNODES=16 GBS=1024 bash ./sbatch_benchmarking.sh --moe-router-force-load-balancing
 
-## Intra-node EP + large TP solution
-TP=4 PP=8 VPP=4 EP=8 NNODES=32 GBS=2048 bash ./sbatch_benchmarking.sh --moe-router-force-load-balancing --moe-router-aux-loss-fusion
-
-## Intra-node EP + FSDP solution
-TP=1 PP=1 VPP=1 EP=8 NNODES=32 GBS=2048 MBS=4 bash ./sbatch_benchmarking.sh --recompute-granularity full --recompute-method uniform --recompute-num-layers 1 --moe-router-force-load-balancing --use-custom-fsdp --data-parallel-sharding-strategy optim_grads_params --no-gradient-accumulation-fusion --init-model-with-meta-device
-
-## Intra-node EP + large PP solution
-TP=2 PP=32 VPP=3 EP=8 NNODES=32 GBS=2048 bash ./sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules moe_act layernorm --moe-router-force-load-balancing
+# GB200 baseline config
+TP=1 PP=4 VPP=12 EP=32 NNODES=32 GBS=1024 bash ./sbatch_benchmarking.sh --moe-router-force-load-balancing --external-cuda-graph --cuda-graph-scope attn --te-rng-tracker --recompute-granularity selective --recompute-modules moe_act layernorm
