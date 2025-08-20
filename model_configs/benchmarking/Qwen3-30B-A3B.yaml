@@ -29,6 +29,9 @@ MODEL_ARGS:
   --exit-duration-in-mins: 230
   --manual-gc: true
   --manual-gc-interval: 5
+  --cross-entropy-loss-fusion: true
+  --cross-entropy-fusion-impl: te
+  --enable-experimental: true
 
   # Transformer Engine args
   --transformer-impl: transformer_engine
@@ -89,6 +92,7 @@ MODEL_ARGS:
   --moe-token-dispatcher-type: ${MOE_TOKEN_DISPATCHER}
   --moe-permute-fusion: true
   --moe-router-dtype: fp32
+  --moe-router-fusion: true
 
   # Add validation args
   --eval-iters: 32

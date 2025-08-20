@@ -27,3 +27,6 @@ PP=1 VPP=1 TP=1 EP=8 NNODES=4 bash ./sbatch_benchmarking.sh --moe-router-force-l
 
 # EP + full recompute solution
 COMMENT="full_recompute" PP=1 VPP=1 TP=1 EP=8 MBS=4 NNODES=4 bash ./sbatch_benchmarking.sh --moe-router-force-load-balancing --recompute-granularity full --recompute-method uniform --recompute-num-layers 1
+
+# config for 1x8 B200 nodes
+PP=1 TP=1 EP=8 MBS=4 NNODES=1 bash ./sbatch_benchmarking.sh --moe-router-force-load-balancing --recompute-granularity selective --recompute-modules moe_act layernorm
