@@ -8,7 +8,7 @@ export CONTAINER_MOUNTS=
 export CLUSTER=CW
 
 # Model selection parameters
-export MODEL=Qwen3-33B-A3B
+export MODEL=Qwen3-30B-A3B
 export WANDB_PROJECT=
 export OUTPUT_PATH=
 
