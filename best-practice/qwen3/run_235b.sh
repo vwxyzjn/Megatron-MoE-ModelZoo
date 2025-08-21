@@ -29,5 +29,9 @@ A2A_OVERLAP=1 TP=2 PP=8 VPP=4 EP=32 NNODES=32 GBS=2048 bash ./sbatch_benchmarkin
 # B200 baseline config
 A2A_OVERLAP=1 TP=1 PP=4 VPP=24 EP=16 NNODES=16 GBS=1024 bash ./sbatch_benchmarking.sh --moe-router-force-load-balancing
 
-# GB200 baseline config
+# GB200 baseline config 128 GPUs
+## EP32 with DeepEP dispatcher
 TP=1 PP=4 VPP=12 EP=32 NNODES=32 GBS=1024 bash ./sbatch_benchmarking.sh --moe-router-force-load-balancing --external-cuda-graph --cuda-graph-scope attn --te-rng-tracker --recompute-granularity selective --recompute-modules moe_act layernorm
+
+## EP64 with A2A dispatcher
+TP=1 PP=2 VPP=24 EP=64 NNODES=32 MBS=2 GBS=1024 bash ./sbatch_benchmarking.sh --moe-router-force-load-balancing --external-cuda-graph --cuda-graph-scope attn --te-rng-tracker --recompute-granularity selective --recompute-modules moe 
