@@ -5,6 +5,7 @@ This guide provides detailed instructions, best practices, and optimized configu
 ## Table of Contents
 
 - [Container Setup](#container-setup)
+- [Design Docs](#design-docs)
 - [Environment Setup](#environment-setup)
 - [Performance Benchmarking](#performance-benchmarking)
 - [DeepSeek Checkpoint Conversion](#deepseek-checkpoint-conversion)
@@ -12,6 +13,9 @@ This guide provides detailed instructions, best practices, and optimized configu
 # Container Setup
 
 - **Dockerfile**: [dockers/Dockerfile](./dockers/Dockerfile)
+
+# Design Docs
+Please refer to [design_docs](./design_docs/).
 
 # Before Running
 
