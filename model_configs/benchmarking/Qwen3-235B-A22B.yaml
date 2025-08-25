@@ -37,6 +37,9 @@ MODEL_ARGS:
   --exit-duration-in-mins: 230
   --manual-gc: true
   --manual-gc-interval: 5
+  --cross-entropy-loss-fusion: true
+  --cross-entropy-fusion-impl: te
+  --enable-experimental: true
 
   # Transformer Engine args
   --transformer-impl: transformer_engine
@@ -99,6 +102,7 @@ MODEL_ARGS:
   --moe-token-dispatcher-type: flex
   --moe-enable-deepep: true
   --moe-permute-fusion: true
+  --moe-router-fusion: true
   --moe-router-dtype: fp32
 
   # Add validation args
