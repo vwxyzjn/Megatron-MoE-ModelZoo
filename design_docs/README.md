@@ -6,6 +6,7 @@ This folder selectively collects the design docs of latest MoE features from [NV
 
 | Date | Feature | Commit Link | Design Doc |
 |------|---------|---------|------------|
+|Aug 27, 2025|Support Expert Parallel A2A Overlapping - (03) Support EP A2A overlap for interleaved PP and MTP|[4b30ec5](https://github.com/NVIDIA/Megatron-LM/commit/4b30ec54aba97e16a083eca33d2df1dd48e1b48f)|[MR-3074](./MR3074-support_ep_a2a_overlapping_3_mtp_and_vpp.md)|
 |Aug 19, 2025|Support recomputation for FP8 layernorm/moe_act/shared_experts|[781e765](https://github.com/NVIDIA/Megatron-LM/commit/781e765818b86b8f2e03ac6bb6b09aaaa9d17074)|[MR-3465](./MR3465-support_recomputation_for_fp8_layernorm_moe_act_shared_experts.md)|
 |Aug 17, 2025|Add MoE router fusion|[c08d89b](https://github.com/NVIDIA/Megatron-LM/commit/c08d89bea05b2071855733da684a5c15873e913f)|[MR-3809](./MR3809-add_moe_router_fusion.md)|
 |Aug 15, 2025|Fixes and updates for external cudagraph|[2b6b46b](https://github.com/NVIDIA/Megatron-LM/commit/2b6b46b796bb8a6c5388e5abd95aad0c97eda391)|[MR-3631](./MR3631-fixes_and_updates_for_external_cudagraph.md)|
