@@ -10,7 +10,7 @@ ENV_VARS:
   NCCL_DEBUG: VERSION
 
   # Command for 128 Nodes w/ MTP and 1F1B overlapping:
-  # A2A_OVERLAP=1 MODEL=DeepSeek-V3 PP=8 VPP=4 TP=2 EP=64 NNODES=128 GBS=8192 PR=fp8 bash sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules mla_up_proj mlp --pipeline-model-parallel-layout "Et*3|(tt|)*29|L"
+  # A2A_OVERLAP=1 MODEL=DeepSeek-V3 PP=8 VPP=4 TP=2 EP=64 NNODES=128 GBS=8192 PR=fp8 bash sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules mla_up_proj mlp --pipeline-model-parallel-layout "Et*3|(tt|)*29|mL"
   # Please refer to README for more best practices.
 
   # NOTE: Currently, this default setting depends on the tuned-ckpt in the CW cluster and will cause OOM with the HF checkpoint.  
