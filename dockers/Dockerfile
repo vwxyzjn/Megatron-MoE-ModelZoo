@@ -1,7 +1,7 @@
 # =========================
 # Build the image
 # =========================
-# nvidia-docker build --target base -f dockers/Dockerfile --build-arg SSH_PRIVATE_KEY="$(cat ~/.ssh/id_rsa)" --tag <IMAGE_TAG> --network host .
+# nvidia-docker build --target base -f dockers/Dockerfile --tag gitlab-master.nvidia.com:5005/arch_moe_exploration/megatron-moe-scripts:mcore-moe-pytorch25.06-te2.6.0.dev0-cudnn9.11.0.92 --network host .
 
 # =========================
 # Use the pytorch image which has CUDA 12.9 inside.
@@ -33,23 +33,27 @@ RUN unset PIP_CONSTRAINT && pip install debugpy dm-tree torch_tb_profiler einops
     tiktoken flask-restful \
     nltk wrapt pytest pytest_asyncio pytest-cov pytest_mock pytest-random-order \
     black==24.4.2 isort==5.13.2 flake8==7.1.0 pylint==3.2.6 coverage mypy \
+    one-logger --index-url https://sc-hw-artf.nvidia.com/artifactory/api/pypi/hwinf-mlwfo-pypi/simple \
     setuptools==69.5.1
 
 # =========================
-# Update cudnn for better performance 
-#   cuDNN 9.10.2.21 has been included in the base image.
-#   Update to v9.11.0 for better performance: https://developer.nvidia.com/cudnn-downloads
+# Install cudnn because the latest build contains optimizations for MLA attention
 # =========================
-# Uncomment the following lines to update cudnn
-# COPY ./cudnn/<cudnn_version>/include/ /usr/include/
-# COPY ./cudnn/<cudnn_version>/include/ /usr/include/x86_64-linux-gnu/
-# COPY ./cudnn/<cudnn_version>/lib64/ /usr/local/cuda/targets/x86_64-linux/lib/
+# fwd: https://gitlab-master.nvidia.com/cudnn/cudnn/-/merge_requests/329
+# bwd: https://gitlab-master.nvidia.com/cudnn/cudnn/-/merge_requests/417
+#      https://gitlab-master.nvidia.com/cudnn/cudnn/-/merge_requests/540
+#      https://gitlab-master.nvidia.com/cudnn/cudnn/-/merge_requests/640 (claim to be included in 9.11.0.24)
+# The latest build is in https://urm.nvidia.com/artifactory/hw-cudnn-generic/CUDNN/v9.11_cuda_12.9/9.11.0.92/debug_cudnn-linux-x86_64-9.11.0.92.tar.gz
+# NOTE: Download (wget --user [username] --ask-password [url]) and extract (tar -xvf *.tar.gz) the package to ./cudnn/cudnn[version]
+COPY ./cudnn/cudnn9.11.0.92/include/ /usr/include/
+COPY ./cudnn/cudnn9.11.0.92/include/ /usr/include/x86_64-linux-gnu/
+COPY ./cudnn/cudnn9.11.0.92/lib64/ /usr/local/cuda/targets/x86_64-linux/lib/
 
 
 # =========================
 # Update cublas for better performance
 # =========================
-# CUDA 12.9u1 has been included in the base image.
+# CUDA 12.9u1 has been included in the base container.
 
 # =========================
 # Install grouped_gemm
@@ -57,12 +61,12 @@ RUN unset PIP_CONSTRAINT && pip install debugpy dm-tree torch_tb_profiler einops
 RUN TORCH_CUDA_ARCH_LIST="8.0 9.0 10.0" pip install git+https://github.com/fanshiqing/grouped_gemm@v1.1.4
 
 # =========================
-# Update latest TE if necessary
+# Install latest TE
 # Use a specific commit instead of main to make it more stable.
 # =========================
-# ARG COMMIT="1c702b4cff6fcee1b92857c283e7c3eb20534923"
-# ARG TE="git+https://github.com/NVIDIA/TransformerEngine.git@${COMMIT}"
-# RUN unset PIP_CONSTRAINT && NVTE_CUDA_ARCHS="80;90;100" NVTE_BUILD_THREADS_PER_JOB=8 NVTE_FRAMEWORK=pytorch pip install --no-cache-dir --no-build-isolation $TE
+ARG COMMIT="07afda98585511ede420971ca8223a8ac2c07d1a"
+ARG TE="git+https://github.com/NVIDIA/TransformerEngine.git@${COMMIT}"
+RUN unset PIP_CONSTRAINT && NVTE_CUDA_ARCHS="80;90;100" NVTE_BUILD_THREADS_PER_JOB=8 NVTE_FRAMEWORK=pytorch pip install --no-cache-dir --no-build-isolation $TE
 
 # =========================
 # Install DeepEP
@@ -114,3 +118,8 @@ RUN NVSHMEM_DIR=/home/dpsk_a2a/deepep-nvshmem/install python setup.py develop &&
 # Change the workspace
 # =========================
 WORKDIR /home/
+
+# =========================
+# Publish the image
+# =========================
+# docker push gitlab-master.nvidia.com:5005/[repo]:[tag]
