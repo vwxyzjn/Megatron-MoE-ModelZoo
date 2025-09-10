@@ -26,9 +26,8 @@ MODEL_ARGS:
   --context-parallel-size: ${CP}
   --expert-tensor-parallel-size: 1
   --use-distributed-optimizer: true
-  # Note: uncomment if not using --delay-wgrad-compute
-  # --overlap-grad-reduce: true
-  # --overlap-param-gather: true
+  --overlap-grad-reduce: true
+  --overlap-param-gather: true
 
   # Training args
   --use-mcore-models: true
@@ -129,9 +128,15 @@ MODEL_ARGS:
   # Put the args in launch command so main and EA branch both can use this yaml config.
   # --delay-wgrad-compute: true
   # --overlap-moe-expert-parallel-comm: true
+  ###########################
 
   --mtp-num-layers: 1
   --mtp-loss-scaling-factor: 0.1
+
+  ##  use below settings with HF checkpoint ##
+  # # put MTP into the postprocess stage
+  # --pipeline-model-parallel-layout: Et|(tt|)*30mL
+  ###########################################
 
   # Add validation args
   --eval-iters: 32
