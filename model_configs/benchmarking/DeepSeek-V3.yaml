@@ -10,11 +10,7 @@ ENV_VARS:
   NCCL_DEBUG: VERSION
 
   # Command for 128 Nodes w/ MTP and 1F1B overlapping:
-  # A2A_OVERLAP=1 MODEL=DeepSeek-V3 PP=8 VPP=4 TP=2 EP=64 NNODES=128 GBS=8192 PR=fp8 bash sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules mla_up_proj mlp --pipeline-model-parallel-layout "Et*3|(tt|)*29|mL"
-  # Please refer to README for more best practices.
-
-  # NOTE: Currently, this default setting depends on the tuned-ckpt in the CW cluster and will cause OOM with the HF checkpoint.  
-  # Please move MTP to the postprocess stage. Refer to the args below.
+  # A2A_OVERLAP=1 MODEL=DeepSeek-V3 PP=8 VPP=4 TP=2 EP=64 NNODES=128 GBS=8192 PR=fp8 bash sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules mla_up_proj mlp --pipeline-model-parallel-layout "Et|(tt|)*30mL"
 
 
 MODEL_ARGS:
@@ -26,6 +22,7 @@ MODEL_ARGS:
   --context-parallel-size: ${CP}
   --expert-tensor-parallel-size: 1
   --use-distributed-optimizer: true
+  # Note: comment out below two args if using --delay-wgrad-compute and TransformerEngine < v2.8.0
   --overlap-grad-reduce: true
   --overlap-param-gather: true
 
@@ -102,7 +99,6 @@ MODEL_ARGS:
   --moe-router-topk: 8
   --moe-token-dispatcher-type: flex
   --moe-enable-deepep: true
-  --moe-router-pre-softmax: true
   --moe-grouped-gemm: true
   --moe-aux-loss-coeff: 1e-4
   --moe-router-group-topk: 4
@@ -113,6 +109,7 @@ MODEL_ARGS:
   --moe-router-bias-update-rate: 1e-3
   --moe-router-dtype: fp32
   --moe-permute-fusion: true
+  --moe-router-fusion: true
 
   # Add MLA args
   --q-lora-rank: 1536
@@ -124,19 +121,13 @@ MODEL_ARGS:
   --mscale: 1.0
   --mscale-all-dim: 1.0
 
-  # EA: Add 1F1B overlapping 
-  # Put the args in launch command so main and EA branch both can use this yaml config.
+  # Add 1F1B overlapping 
   # --delay-wgrad-compute: true
   # --overlap-moe-expert-parallel-comm: true
-  ###########################
 
+  # Add MTP args
   --mtp-num-layers: 1
   --mtp-loss-scaling-factor: 0.1
-
-  ##  use below settings with HF checkpoint ##
-  # # put MTP into the postprocess stage
-  # --pipeline-model-parallel-layout: Et|(tt|)*30mL
-  ###########################################
 
   # Add validation args
   --eval-iters: 32
@@ -156,7 +147,7 @@ MODEL_ARGS:
   --init-method-std: 0.02
 
   # Add logging args
-  --log-timers-to-tensorboard: false
+  --log-timers-to-tensorboard: true
   --log-memory-to-tensorboard: true
   --log-num-zeros-in-grad: false
   --log-params-norm: false
