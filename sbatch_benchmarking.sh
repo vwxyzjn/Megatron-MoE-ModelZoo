@@ -83,6 +83,15 @@ if [[ ${PR} == "fp8" ]]; then
     TRAINING_PARAMS="${TRAINING_PARAMS} --moe-router-padding-for-fp8"
 fi
 
+if [[ ${PR} == "mxfp8" ]]; then
+    TRAINING_PARAMS="${TRAINING_PARAMS} --fp8-recipe mxfp8 --fp8-format e4m3"
+    if [[ ${OPTIMIZER_OFFLOAD} == 0 ]]; then
+        TRAINING_PARAMS="${TRAINING_PARAMS} --fp8-param-gather --reuse-grad-buf-for-mxfp8-param-ag" # Optimizer CPU offload does not support fp8 param gather now.
+    fi
+    TRAINING_PARAMS="${TRAINING_PARAMS} --use-precision-aware-optimizer --main-grads-dtype fp32 --main-params-dtype fp32 --exp-avg-dtype bf16 --exp-avg-sq-dtype bf16"
+    TRAINING_PARAMS="${TRAINING_PARAMS} --moe-router-padding-for-fp8"
+fi
+
 # 1F1B overlapping arguments and environment variables
 A2A_OVERLAP=${A2A_OVERLAP:-0}
 if [[ ${A2A_OVERLAP} == 1 ]]; then

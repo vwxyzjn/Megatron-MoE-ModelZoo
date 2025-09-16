@@ -18,8 +18,34 @@ export RUN_TIME=00:30:00
 export COMMENT=
 
 
-# best config on 1024 H100 GPUs with 4096 sequence lengths
+# H100 config. best config on 1024 H100 GPUs with 4096 sequence lengths
 A2A_OVERLAP=1 PP=8 VPP=4 TP=2 EP=64 NNODES=128 GBS=8192 PR=fp8 bash sbatch_benchmarking.sh \
     --recompute-granularity selective \
     --recompute-modules mla_up_proj mlp \
     --pipeline-model-parallel-layout "Et|(tt|)*30mL"
+
+# B200 config with 256 GPUs
+PR=mxfp8 A2A_OVERLAP=1 TP=1 PP=8 EP=32 NNODES=32 GBS=2048 bash sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules mla_up_proj mlp --pipeline-model-parallel-layout "Et*3|(tt|)*29m|L"
+
+
+
+# Long Context
+## 256 H100, 4k sequence length
+OPTIMIZER_OFFLOAD=1 A2A_OVERLAP=0 MODEL=DeepSeek-V3 PP=8 VPP=4 TP=1 EP=32 CP=1 NNODES=32 GBS=8192 PR=fp8 bash sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules mla_up_proj moe mlp layernorm --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL"
+
+## 256 H100, 16k sequence length
+OPTIMIZER_OFFLOAD=1 A2A_OVERLAP=0 MODEL=DeepSeek-V3 PP=8 VPP=4 TP=4 EP=32 CP=1 NNODES=32 GBS=3840 SEQ_LEN=16384 PR=fp8 bash sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules mla_up_proj moe mlp layernorm --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL"
+
+## 256 H100, 32k sequence length
+OPTIMIZER_OFFLOAD=1 A2A_OVERLAP=0 MODEL=DeepSeek-V3 PP=8 VPP=4 TP=8 EP=32 CP=1 NNODES=32 GBS=1920 SEQ_LEN=32768 PR=fp8 bash sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules mla_up_proj moe mlp layernorm --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL"
+
+## 256 H100, 64k sequence length
+OPTIMIZER_OFFLOAD=1 A2A_OVERLAP=0 MODEL=DeepSeek-V3 PP=8 VPP=4 TP=16 EP=32 CP=1 NNODES=32 GBS=960 SEQ_LEN=65536 PR=fp8 bash sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules mla_up_proj moe mlp layernorm --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL"
+
+## 256 H100, 128k sequence length
+OPTIMIZER_OFFLOAD=1 A2A_OVERLAP=0 MODEL=DeepSeek-V3 PP=8 VPP=4 TP=32 EP=32 CP=1 NNODES=32 GBS=480 SEQ_LEN=131072 PR=fp8 bash sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules mla_up_proj moe mlp layernorm --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL"
+
+## 512 H100, 256k sequence length
+OPTIMIZER_OFFLOAD=1 A2A_OVERLAP=0 MODEL=DeepSeek-V3 PP=8 VPP=4 TP=64 EP=32 CP=1 NNODES=64 GBS=240 SEQ_LEN=262144 PR=fp8 bash sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules mla_up_proj moe mlp layernorm --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL"
+
+# Note: Add (remove) `--moe-router-force-load-balancing` to test forced load balancing (dropless).
