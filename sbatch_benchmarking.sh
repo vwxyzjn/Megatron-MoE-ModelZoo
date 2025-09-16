@@ -119,7 +119,7 @@ else
 fi
 
 # Export training command
-export TRAINING_CMD="${PROFILE_CMD} python ${TRAINING_SCRIPT_PATH} ${TRAINING_PARAMS}"
+export TRAINING_CMD="${PROFILE_CMD} ${BINDPCIE_PATH} python ${TRAINING_SCRIPT_PATH} ${TRAINING_PARAMS}"
 
 # SLURM settings
 SLURM_LOGS="${OUTPUT_PATH}/slurm_logs"
