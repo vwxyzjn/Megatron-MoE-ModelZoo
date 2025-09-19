@@ -6,7 +6,7 @@ WORKSPACE=$(dirname "$(readlink -f "$0")")
 
 # Benchmarking configurations (must be set)
 export MODEL=${MODEL:-"DeepSeek-V3"}
-export CLUSTER=${CLUSTER:-"DP-Megatron"}
+export CLUSTER=${CLUSTER:-"deepseek-v3"}
 export MCORE_RELEASE_VERSION=${MCORE_RELEASE_VERSION:-"0.13.1"} # Version and release info
 export MEGATRON_PATH=${MEGATRON_PATH:-"/home/Megatron-LM"} # Path to Megatron-LM
 export WANDB_API_KEY=${WANDB_API_KEY:-"your_own_wandb_api_key"} # Wandb API key
