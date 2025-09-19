@@ -1,7 +1,7 @@
 #!/bin/bash
 source /usr/local/gib/scripts/set_nccl_env.sh
 export TRITON_CACHE_DIR="/tmp/triton-cache/"
-export NCCL_DEBUG=INFO
+#export NCCL_DEBUG=INFO
 export NCCL_DEBUG_SUBSYS=ALL
 # Environment variables for performance tuning
 export CUDA_DEVICE_MAX_CONNECTIONS=${CUDA_DEVICE_MAX_CONNECTIONS:-1}
