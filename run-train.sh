@@ -21,7 +21,7 @@ bash -c 'torchrun \
         --node_rank $NODE_RANK \
         --master_addr $MASTER_ADDR \
         --master_port $MASTER_PORT 
-        /home/Megatron-MoE-ModelZoo-workspace/Megatron-LM/pretrain_gpt.py  \
+        /home/Megatron-LM/pretrain_gpt.py  \
         --distributed-timeout-minutes 60 \
         --tensor-model-parallel-size 1 \
         --pipeline-model-parallel-size 8 \
