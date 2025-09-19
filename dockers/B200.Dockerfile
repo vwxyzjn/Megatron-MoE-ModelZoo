@@ -41,4 +41,5 @@ RUN NVSHMEM_DIR=/home/dpsk_a2a/deepep-nvshmem python setup.py develop
 RUN NVSHMEM_DIR=/home/dpsk_a2a/deepep-nvshmem python setup.py install
 
 ## Change the workspace
-WORKDIR /home/
+WORKDIR /home/megatron-moe
+COPY . /home/megatron-moe

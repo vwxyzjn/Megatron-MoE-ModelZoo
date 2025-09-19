@@ -156,8 +156,8 @@ MODEL_ARGS:
   --log-interval: 1
   --logging-level: 40
   --tensorboard-dir: ${OUTPUT_PATH}/tensorboard
-  --wandb-project: ${WANDB_PROJECT}
-  --wandb-exp-name: DeepSeek-V3-TP${TP}PP${PP}EP${EP}CP${CP}VPP${VPP}-MBS${MBS}GBS${GBS}-${COMMENT}
+  #--wandb-project: ${WANDB_PROJECT}
+  #--wandb-exp-name: DeepSeek-V3-TP${TP}PP${PP}EP${EP}CP${CP}VPP${VPP}-MBS${MBS}GBS${GBS}-${COMMENT}
 
   # Add mixed precision args
   --bf16: true
