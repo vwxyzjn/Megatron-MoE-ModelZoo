@@ -133,6 +133,8 @@ spec:
                 cd Megatron-MoE-ModelZoo
                 
                 sleep infinity
+                export USER=rickchen
+                export DATASET=GOVE_REPORT
                 bash interactive_benchmarking.sh
                 #cp -r -f /data/llama3_lora_sft.yaml examples/train_lora/llama3_lora_sft.yaml
                 #FORCE_TORCHRUN=1 NNODES=$NODE_COUNT NODE_RANK=$NODE_RANK MASTER_ADDR=$MASTER_ADDR MASTER_PORT=$MASTER_PORT llamafactory-cli train examples/train_lora/llama3_lora_sft.yaml
