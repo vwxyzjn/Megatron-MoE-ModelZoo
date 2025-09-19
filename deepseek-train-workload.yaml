@@ -127,15 +127,13 @@ spec:
                 
                 cd /home
                 rm -r -f Megatron-MoE-ModelZoo
-                pip install megatron-core[lts]
+                pip install megatron-core[lts] yq
                 git clone https://github.com/NVIDIA/Megatron-LM.git
                 git clone https://github.com/llm-on-gke/Megatron-MoE-ModelZoo.git
                 cd Megatron-MoE-ModelZoo
                 
                 sleep infinity
-                export USER=rickchen
-                export DATASET=GOVE_REPORT
-                bash interactive_benchmarking.sh
+                bash run-pretrain.sh
                 #cp -r -f /data/llama3_lora_sft.yaml examples/train_lora/llama3_lora_sft.yaml
                 #FORCE_TORCHRUN=1 NNODES=$NODE_COUNT NODE_RANK=$NODE_RANK MASTER_ADDR=$MASTER_ADDR MASTER_PORT=$MASTER_PORT llamafactory-cli train examples/train_lora/llama3_lora_sft.yaml
               resources:
