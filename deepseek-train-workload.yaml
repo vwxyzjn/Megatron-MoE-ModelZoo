@@ -4,21 +4,21 @@ apiVersion: jobset.x-k8s.io/v1alpha2
 kind: JobSet
 metadata:
   name: pytorch
-  annotations:
-   kueue.x-k8s.io/queue-name: a3-ultra
+  #annotations:
+  # kueue.x-k8s.io/queue-name: a3-ultra
 spec:
   replicatedJobs:
   - name: workers
     template:
       spec:
-        parallelism: 1
-        completions: 1
+        parallelism: 32
+        completions: 32
         #suspend: true
         backoffLimit: 0
         template:
           metadata:
             annotations:
-              kueue.x-k8s.io/podset-preferred-topology: "kubernetes.io/hostname"
+              #kueue.x-k8s.io/podset-preferred-topology: "kubernetes.io/hostname"
               gke-gcsfuse/volumes: "true"
               networking.gke.io/default-interface: 'eth0'
               networking.gke.io/interfaces: |
@@ -103,7 +103,7 @@ spec:
               - name: MASTER_PORT
                 value: "3389"
               - name: NNODES
-                value: "1"
+                value: "32"
               - name: NODE_RANK
                 valueFrom:
                   fieldRef:
@@ -122,21 +122,19 @@ spec:
               command:
               - bash
               - -xc
-              - |
-                source /usr/local/gib/scripts/set_nccl_env.sh
-                
+              - |            
                 cd /home
                 rm -r -f Megatron-MoE-ModelZoo
-                pip install megatron-core[lts] yq
+                #pip install megatron-core[lts] yq
                 git clone https://github.com/NVIDIA/Megatron-LM.git
+                cd /home/Megatron-LM
+                pip install -e .
+                export PYTHON_PATH=$PYTHON_PATH:/home/home/Megatron-LM
+                cd /home
                 git clone https://github.com/llm-on-gke/Megatron-MoE-ModelZoo.git
                 cd Megatron-MoE-ModelZoo
-                
-                sleep infinity
-                bash run-pretrain.sh
-                #cp -r -f /data/llama3_lora_sft.yaml examples/train_lora/llama3_lora_sft.yaml
-                #FORCE_TORCHRUN=1 NNODES=$NODE_COUNT NODE_RANK=$NODE_RANK MASTER_ADDR=$MASTER_ADDR MASTER_PORT=$MASTER_PORT llamafactory-cli train examples/train_lora/llama3_lora_sft.yaml
-              resources:
+                #sleep infinity
+                bash run-train.sh            resources:
                 requests:
                   nvidia.com/gpu: 8
                 limits:

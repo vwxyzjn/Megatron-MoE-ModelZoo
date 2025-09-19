@@ -1,8 +1,11 @@
 #!/bin/bash
 set -euxo pipefail
 
+source /usr/local/gib/scripts/set_nccl_env.sh
 export TRITON_CACHE_DIR="/tmp/triton-cache/"
-
+export NCCL_DEBUG=INFO
+export NCCL_DEBUG_SUBSYS=ALL
+export TORCH_DISTRIBUTED_DEBUG=INFO
 export CUDA_DEVICE_MAX_CONNECTIONS=32
 export NVTE_FWD_LAYERNORM_SM_MARGIN=20
 export NVTE_BWD_LAYERNORM_SM_MARGIN=20
@@ -15,11 +18,14 @@ export NVTE_NORM_FWD_USE_CUDNN=1
 export NVTE_NORM_BWD_USE_CUDNN=1
 export PYTHONWARNINGS=ignore
 chmod +x /home/Megatron-LM/pretrain_gpt.py
-bash -c 'torchrun \
+
+torchrun \
         --nproc_per_node 8 \
         --nnodes $NNODES \
         --node_rank $NODE_RANK \
         --master_addr $MASTER_ADDR \
+        --rdzv_id="${JOB_IDENTIFIER}" \
+        --rdzv_backend static \
         --master_port $MASTER_PORT /home/Megatron-LM/pretrain_gpt.py \
         --distributed-timeout-minutes 60 \
         --tensor-model-parallel-size 1 \
@@ -135,5 +141,5 @@ bash -c 'torchrun \
         --exp-avg-sq-dtype bf16 \
         --moe-router-padding-for-fp8 \
         --overlap-grad-reduce \
-        --overlap-param-gather'
+        --overlap-param-gather
 

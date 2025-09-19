@@ -1,177 +1,150 @@
-# Megatron MoE Testing Guide
+# go-containerregistry
 
-This guide provides detailed instructions, best practices, and optimized configurations for testing Mixtral, DeepSeek, and Qwen series models using the Megatron-Core framework to achieve optimal performance and reliability.
+[![GitHub Actions Build Status](https://github.com/google/go-containerregistry/workflows/Build/badge.svg)](https://github.com/google/go-containerregistry/actions?query=workflow%3ABuild)
+[![GoDoc](https://godoc.org/github.com/google/go-containerregistry?status.svg)](https://godoc.org/github.com/google/go-containerregistry)
+[![Code Coverage](https://codecov.io/gh/google/go-containerregistry/branch/main/graph/badge.svg)](https://codecov.io/gh/google/go-containerregistry)
 
-## Table of Contents
+## Introduction
 
-- [Container Setup](#container-setup)
-- [Design Docs](#design-docs)
-- [Environment Setup](#environment-setup)
-- [Performance Benchmarking](#performance-benchmarking)
-- [DeepSeek Checkpoint Conversion](#deepseek-checkpoint-conversion)
+This is a golang library for working with container registries.
+It's largely based on the [Python library of the same name](https://github.com/google/containerregistry).
 
-# Container Setup
+The following diagram shows the main types that this library handles.
+![OCI image representation](images/ociimage.jpeg)
 
-- **Dockerfile**: [dockers/Dockerfile](./dockers/Dockerfile)
+## Philosophy
 
-# Design Docs
-Please refer to [design_docs](./design_docs/).
+The overarching design philosophy of this library is to define interfaces that present an immutable
+view of resources (e.g. [`Image`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1#Image),
+[`Layer`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1#Layer),
+[`ImageIndex`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1#ImageIndex)),
+which can be backed by a variety of medium (e.g. [registry](./pkg/v1/remote/README.md),
+[tarball](./pkg/v1/tarball/README.md), [daemon](./pkg/v1/daemon/README.md), ...).
 
-# Before Running
+To complement these immutable views, we support functional mutations that produce new immutable views
+of the resulting resource (e.g. [mutate](./pkg/v1/mutate/README.md)).  The end goal is to provide a
+set of versatile primitives that can compose to do extraordinarily powerful things efficiently and easily.
 
-## Login Node Setup
+Both the resource views and mutations may be lazy, eager, memoizing, etc, and most are optimized
+for common paths based on the tooling we have seen in the wild (e.g. writing new images from disk
+to the registry as a compressed tarball).
 
-Before entering the container, you need to install `yq` to process `.yaml` configuration files.
 
-<details>
-<summary>Click here to view installation steps.</summary>
+### Experiments
 
-1.  Create a local bin directory:
-    ```bash
-    mkdir -p ~/.local/bin
-    ```
+Over time, we will add new functionality under experimental environment variables listed here.
 
-2.  Download the `yq` executable:
-    ```bash
-    wget https://github.com/mikefarah/yq/releases/download/v4.27.5/yq_linux_amd64 -O ~/.local/bin/yq
-    ```
+| Env Var | Value(s) | What is does |
+|---------|----------|--------------|
+| `GGCR_EXPERIMENT_ESTARGZ` | `"1"` | ⚠️DEPRECATED⚠️: When enabled this experiment will direct `tarball.LayerFromOpener` to emit [estargz](https://github.com/opencontainers/image-spec/issues/815) compatible layers, which enable them to be lazily loaded by an appropriately configured containerd. |
 
-3.  Make it executable:
-    ```bash
-    chmod +x ~/.local/bin/yq
-    ```
 
-4.  Add the local bin directory to your `PATH` in `~/.bashrc`:
-    ```bash
-    export PATH="$HOME/.local/bin:$PATH"
-    ```
+### `v1.Image`
 
-5.  Apply the changes:
-    ```bash
-    source ~/.bashrc
-    ```
+#### Sources
 
-</details>
+* [`remote.Image`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/remote#Image)
+* [`tarball.Image`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/tarball#Image)
+* [`daemon.Image`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/daemon#Image)
+* [`layout.Image`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/layout#Path.Image)
+* [`random.Image`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/random#Image)
 
-## Environment Setup
+#### Sinks
 
-Before running any scripts, you need to set up the following environment variables:
+* [`remote.Write`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/remote#Write)
+* [`tarball.Write`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/tarball#Write)
+* [`daemon.Write`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/daemon#Write)
+* [`legacy/tarball.Write`](https://godoc.org/github.com/google/go-containerregistry/pkg/legacy/tarball#Write)
+* [`layout.AppendImage`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/layout#Path.AppendImage)
 
-```bash
-export WANDB_API_KEY="your_wandb_api_key_here"
-export MEGATRON_PATH="/path/to/your/megatron/directory"
-export MCORE_RELEASE_VERSION="0.13"
-export CONTAINER_IMAGE="/path/to/container/image.sqsh"
-export CLUSTER="your_cluster_name"
-```
+### `v1.ImageIndex`
 
--   **`WANDB_API_KEY`**: Your Weights & Biases API key for experiment tracking.
-    -   Get your key from [wandb.ai/authorize](https://wandb.ai/authorize).
--   **`MEGATRON_PATH`**: Absolute path to your Megatron-MoE installation directory.
-    -   Example: `path/to/Megatron-LM`
--   **`MCORE_RELEASE_VERSION`**: Version of Megatron-Core to use.
-    -   Currently recommended: `0.13`
--   **`CONTAINER_IMAGE`**: Path to the container image file (`.sqsh`).
-    -   Example: `path/to/container/image.sqsh`
--   **`CLUSTER`**: Name of your cluster environment (e.g., `EOS`, `CW`).
+#### Sources
 
-# Performance Benchmarking
+* [`remote.Index`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/remote#Index)
+* [`random.Index`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/random#Index)
+* [`layout.ImageIndexFromPath`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/layout#ImageIndexFromPath)
 
-## Benchmarking Script Usage
+#### Sinks
 
-For performance benchmarking, you can launch scripts either with `sbatch` via [`sbatch_benchmarking.sh`](./sbatch_benchmarking.sh) or on an interactive node via [`interactive_benchmarking.sh`](./interactive_benchmarking.sh).
+* [`remote.WriteIndex`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/remote#WriteIndex)
+* [`layout.Write`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/layout#Write)
 
--   **`MODEL`**
-    -   This is a required environment variable that must be set in your script or command.
-    -   Predefined models include: `Mixtral-8x2B`, `Mixtral-8x7B`, `Mixtral-8x22B`, `DeepSeek-V2`, `DeepSeek-V2-Lite`, `DeepSeek-V3`, `DeepSeek-V3-Lite`, and `Qwen2-57B-A14B`.
+### `v1.Layer`
 
--   **`CLUSTER`**, **`MCORE_RELEASE_VERSION`**, and **`MEGATRON_PATH`**
-    -   These required variables must be defined in your script or command for proper execution.
+#### Sources
 
--   **`CONTAINER_IMAGE`**
+* [`remote.Layer`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/remote#Layer)
+* [`tarball.LayerFromFile`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/tarball#LayerFromFile)
+* [`random.Layer`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/random#Layer)
+* [`stream.Layer`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/stream#Layer)
 
--   **Using WandB for Experiment Tracking**
-    <details>
-    <summary>Click here to view WandB setup instructions.</summary>
+#### Sinks
 
-    -   To use WandB for experiment tracking, set `WANDB_API_KEY` with your key from [wandb.ai/authorize](https://wandb.ai/authorize). It is highly recommended to add `export WANDB_API_KEY="your_own_wandb_api_key"` to your `~/.bashrc`.
-    -   If you do not wish to use WandB, comment out the following lines in your model's `.yaml` configuration file:
-        ```yaml
-        # --wandb-project: wandb_project_name
-        # --wandb-exp-name: wandb_experiment_name
-        ```
-    </details>
+* [`remote.WriteLayer`](https://godoc.org/github.com/google/go-containerregistry/pkg/v1/remote#WriteLayer)
 
-## Runner Configuration Setup
+## Overview
 
-All model-specific runner configurations can be adjusted through [`runtime_configs/benchmarking/runtime.conf`](./runtime_configs/benchmarking/runtime.conf) or via the benchmarking command.
+### `mutate`
 
--   **Available Model-Specific Runner Configurations**
-    <details>
-    <summary>Click here to view available model-specific benchmarking configurations.</summary>
+The simplest use for these libraries is to read from one source and write to another.
 
-    -   **Parallel Mappings**: `TP`, `PP`, `EP`, `CP`, `VPP`, `PP_FIRST`, `PP_LAST`, and `LAYERS_PER_VP`
-    -   **Batch Sizes**: `MBS` and `GBS`
-    -   **Model Architecture**: `NUM_LAYERS`
-    -   **MoE Configurations**: `MOE_TOKEN_DISPATCHER`, `MOE_GROUPED_GEMM`, and `--moe-extended-ep`
-    -   **Training Configurations**: `NNODES`, `RUN_TIME`, and `PRETRAIN`. Note that specifying a shorter run time may improve your job's priority in the Slurm queue.
-    -   **Data Configurations**: `SEQ_LEN` and `DATASET`
-    </details>
--   All available optimial configurations are listed in [`runtime_configs/benchmarking/runtime.conf`](./runtime_configs/benchmarking/runtime.conf).
+For example,
 
-## Cluster-Related Configuration Setup
-All cluster configurations can be customized either through `cluster_configs/benchmarking/your_own_cluster.conf` or via the benchmarking command. For guidance on creating your own cluster configurations, refer to the template provided in [`cluster_configs/benchmarking/template.conf`](./cluster_configs/benchmarking/template.conf).
--   **Required Cluster-Specific Slurm Settings**: `ACCOUNT`, `PARTITION`, `RUN_NAME`, and `CONTAINER_MOUNTS`
--   **Required Cluster-Specific Paths**: `OUTPUT_PATH`, `DATA_PATH`, `TOKENIZER_MODEL`, and `LOAD_PATH`
+ * `crane pull` is `remote.Image -> tarball.Write`,
+ * `crane push` is `tarball.Image -> remote.Write`,
+ * `crane cp` is `remote.Image -> remote.Write`.
 
-## Benchmarking Script Launch
+However, often you actually want to _change something_ about an image.
+This is the purpose of the [`mutate`](pkg/v1/mutate) package, which exposes
+some commonly useful things to change about an image.
 
--   To benchmark a model from scratch with preconfigured parameters:
-    ```bash
-    # Example for DeepSeek-V3
-    MODEL=DeepSeek-V3 bash ./sbatch_benchmarking.sh
-    ```
--   To train a model with custom parameters:
-    ```bash
-    # Example for DeepSeek-V3
-    MODEL=DeepSeek-V3 TP=2 PP=8 EP=64 VPP=1 PP_FIRST=8 PP_LAST=5 RUN_TIME=00:60:00 NNODES=64 bash sbatch_benchmarking.sh --recompute-granularity selective --recompute-modules mla_up_proj layernorm
-    ```
--   To monitor your jobs, use `squeue -u $USER` for a one-time status check or `watch -n 1 squeue -u $USER` for continuous monitoring. For detailed logging, refer to the WandB dashboard.
+### `partial`
 
-# DeepSeek Checkpoint Conversion
+If you're trying to use this library with a different source or sink than it already supports,
+it can be somewhat cumbersome. The `Image` and `Layer` interfaces are pretty wide, with a lot
+of redundant information. This is somewhat by design, because we want to expose this information
+as efficiently as possible where we can, but again it is a pain to implement yourself.
 
-| Please try [MBridge](https://github.com/ISEEKYAN/mbridge/) and [Megatron-Bridge](https://github.com/NVIDIA-NeMo/Megatron-Bridge) for better HF<->MCore conversion support.
+The purpose of the [`partial`](pkg/v1/partial) package is to make implementing a `v1.Image`
+much easier, by filling in all the derived accessors for you if you implement a minimal
+subset of `v1.Image`.
 
-### 1. Download DeepSeek-V3 Checkpoint
+### `transport`
 
-Download the DeepSeek-V3 checkpoint from [HuggingFace](https://huggingface.co/deepseek-ai/DeepSeek-V3):
+You might think our abstractions are bad and you just want to authenticate
+and send requests to a registry.
 
-```bash
-# Make sure git-lfs is installed (https://git-lfs.com)
-git lfs install
-git clone https://huggingface.co/deepseek-ai/DeepSeek-V3
-```
+This is the purpose of the [`transport`](pkg/v1/remote/transport) and [`authn`](pkg/authn) packages.
 
-The downloaded checkpoint is in FP8 format. Run the following command to convert it to BF16 format, using this [script](https://huggingface.co/deepseek-ai/DeepSeek-V3/blob/main/inference/fp8_cast_bf16.py):
+## Tools
 
-```bash
-python inference/fp8_cast_bf16.py --input-fp8-hf-path /your/input/fp8/hf/path --output-bf16-hf-path /your/output/bf16/hf/path
-```
+This repo hosts some tools built on top of the library.
 
-### 2. Convert to Megatron Legacy Checkpoint
+### `crane`
 
-To convert the BF16 HuggingFace checkpoint to a Megatron legacy checkpoint, execute the following command:
-```
-# Example for DeepSeek-V3
-MODEL=DeepSeek-V3 bash ./ckpt_convert_scripts/DeepSeek-V3/convert_deepseek_v3.sh
-```
+[`crane`](cmd/crane/README.md) is a tool for interacting with remote images
+and registries.
 
-### 3. Convert to Distributed Checkpoint
+### `gcrane`
 
-Finally, run this command to convert the legacy checkpoint into a distributed checkpoint:
+[`gcrane`](cmd/gcrane/README.md) is a GCR-specific variant of `crane` that has
+richer output for the `ls` subcommand and some basic garbage collection support.
 
-```bash
-MODEL=DeepSeek-V3 TP=1 PP=4 EP=64 VPP=1 PP_FIRST=16 PP_LAST=13 NNODES=32 LOAD_PATH=/path/to/legacy/checkpoint bash ./sbatch_benchmarking.sh --ckpt-convert-save /path/to/save/distributed/checkpoint --ckpt-convert-format torch_dist --no-save-optim
-```
+### `krane`
 
-For reference, after conversion, the legacy checkpoint is approximately 3.4T, and the distributed checkpoint is about 1.4T.
+[`krane`](cmd/krane/README.md) is a drop-in replacement for `crane` that supports
+common Kubernetes-based workload identity mechanisms using [`k8schain`](#k8schain)
+as a fallback to traditional authentication mechanisms.
+
+### `k8schain`
+
+[`k8schain`](pkg/authn/k8schain/README.md) implements the authentication
+semantics used by kubelets in a way that is easily consumable by this library.
+
+`k8schain` is not a standalone tool, but it is linked here for visibility.
+
+### Emeritus: [`ko`](https://github.com/google/ko)
+
+This tool was originally developed in this repo but has since been moved to its
+own repo.
