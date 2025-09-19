@@ -7,6 +7,8 @@ metadata:
   #annotations:
   # kueue.x-k8s.io/queue-name: a3-ultra
 spec:
+  network:
+    enableDNSHostnames: true
   replicatedJobs:
   - name: workers
     template:
@@ -41,7 +43,7 @@ spec:
             #dnsPolicy: ClusterFirstWithHostNet
             nodeSelector:
                #cloud.google.com/gke-nodepool: dws-a3-mega #dws
-               cloud.google.com/gke-accelerator: nvidia-h200-141gb #non dws
+               cloud.google.com/gke-accelerator: nvidia-b200 #non dws
             tolerations:
                - key: "nvidia.com/gpu"
                  operator: "Exists"
@@ -54,7 +56,7 @@ spec:
                 driver: gcsfuse.csi.storage.gke.io
                 readOnly: false
                 volumeAttributes:
-                   bucketName: rick-data-uw1
+                   bucketName: rick-nemo-factory
                    mountOptions: "implicit-dirs"
                    fileCacheCapacity: "-1Mi"
                    fileCacheForRangeRead: "true"
@@ -82,7 +84,7 @@ spec:
 
             containers:
             - name: pytorch
-              image: us-east1-docker.pkg.dev/gpu-launchpad-playground/gke-llm/megatron-b200
+              image: us-east1-docker.pkg.dev/supercomputer-testing/gke-llm/megatron-b200
               imagePullPolicy: Always
               # image: gcr.io/k8s-staging-jobset/pytorch-mnist:latest
               ports:
@@ -99,7 +101,7 @@ spec:
                      name: huggingface
                      key: HF_TOKEN
               - name: MASTER_ADDR
-                value: "pytorch-workers-0-0.pytorch"
+                value: "pytorch-workers-0-0.pytorch.default.svc.cluster.local"
               - name: MASTER_PORT
                 value: "3389"
               - name: NNODES
