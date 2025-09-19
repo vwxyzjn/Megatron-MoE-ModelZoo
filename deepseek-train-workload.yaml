@@ -134,7 +134,8 @@ spec:
                 git clone https://github.com/llm-on-gke/Megatron-MoE-ModelZoo.git
                 cd Megatron-MoE-ModelZoo
                 #sleep infinity
-                bash run-train.sh            resources:
+                bash run-train.sh            
+              resources:
                 requests:
                   nvidia.com/gpu: 8
                 limits:
