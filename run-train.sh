@@ -15,13 +15,13 @@ export NVTE_NORM_FWD_USE_CUDNN=1
 export NVTE_NORM_BWD_USE_CUDNN=1
 export PYTHONWARNINGS=ignore
 
-bash -c 'torchrun \
+torchrun \
         --nproc_per_node 8 \
         --nnodes $NNODES \
         --node_rank $NODE_RANK \
         --master_addr $MASTER_ADDR \
-        --master_port $MASTER_PORT 
-        /home/Megatron-LM/pretrain_gpt.py  \
+        --master_port $MASTER_PORT \
+        python -u /home/Megatron-LM/pretrain_gpt.py \
         --distributed-timeout-minutes 60 \
         --tensor-model-parallel-size 1 \
         --pipeline-model-parallel-size 8 \
