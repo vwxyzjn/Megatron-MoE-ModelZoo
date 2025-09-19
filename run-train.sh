@@ -15,7 +15,7 @@ export NVTE_NORM_FWD_USE_CUDNN=1
 export NVTE_NORM_BWD_USE_CUDNN=1
 export PYTHONWARNINGS=ignore
 
-torchrun \
+bash -c 'torchrun \
         --nproc_per_node 8 \
         --nnodes $NNODES \
         --node_rank $NODE_RANK \
