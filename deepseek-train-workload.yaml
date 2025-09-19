@@ -4,6 +4,8 @@ apiVersion: jobset.x-k8s.io/v1alpha2
 kind: JobSet
 metadata:
   name: pytorch
+  annotations:
+   kueue.x-k8s.io/queue-name: a3-ultra
 spec:
   replicatedJobs:
   - name: workers
@@ -16,6 +18,7 @@ spec:
         template:
           metadata:
             annotations:
+              kueue.x-k8s.io/podset-preferred-topology: "kubernetes.io/hostname"
               gke-gcsfuse/volumes: "true"
               networking.gke.io/default-interface: 'eth0'
               networking.gke.io/interfaces: |
@@ -99,7 +102,7 @@ spec:
                 value: "pytorch-workers-0-0.pytorch"
               - name: MASTER_PORT
                 value: "3389"
-              - name: NODE_COUNT
+              - name: NNODES
                 value: "1"
               - name: NODE_RANK
                 valueFrom:
@@ -110,6 +113,10 @@ spec:
                 value: "0"
               - name: LD_LIBRARY_PATH
                 value: /usr/local/nvidia/lib64
+              - name: JOB_IDENTIFIER
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.annotations['jobset.sigs.k8s.io/jobset-name']
               securityContext:
                 privileged: true
               command:

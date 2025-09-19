@@ -127,6 +127,9 @@ DISTRIBUTED_ARGS=(
     --nnodes ${NNODES}
     --master_addr ${MASTER_ADDR}
     --master_port ${MASTER_PORT}
+    --node_rank="${NODE_RANK}" \
+    --rdzv_id="${JOB_IDENTIFIER}" \
+    --rdzv_backend static \
 )
 
 # Start training
