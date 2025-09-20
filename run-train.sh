@@ -94,7 +94,6 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --moe-router-load-balancing-type seq_aux_loss \
         --moe-router-topk 8 \
         --moe-token-dispatcher-type flex \
-        --moe-enable-deepep  \
         --moe-router-pre-softmax  \
         --moe-grouped-gemm  \
         --moe-aux-loss-coeff 1e-4 \
@@ -132,6 +131,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --logging-level 40 \
         --tensorboard-dir /gcs-dir/Megatron-MoE-ModelZoo-workspace/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/tensorboard \
         --bf16  \
+        --enable-experimental \
         --recompute-granularity selective \
         --recompute-modules mla_up_proj moe mlp layernorm \
         --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL" \
