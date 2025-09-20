@@ -32,8 +32,8 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --rdzv_backend static \
         --master_port $MASTER_PORT /home/Megatron-LM/pretrain_gpt.py \
         --distributed-timeout-minutes 60 \
-        --tensor-model-parallel-size 1 \
-        --pipeline-model-parallel-size 8 \
+        --tensor-model-parallel-size 2 \
+        --pipeline-model-parallel-size 16 \
         --expert-model-parallel-size 4 \
         --context-parallel-size 1 \
         --expert-tensor-parallel-size 1 \
