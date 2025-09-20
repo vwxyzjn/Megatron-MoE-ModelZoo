@@ -22,7 +22,8 @@ export PYTHONWARNINGS=ignore
 
 chmod +x /home/Megatron-LM/pretrain_gpt.py
 
-PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH=/home/Megatron-LM torchrun \
+
+NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH=/home/Megatron-LM torchrun \
         --nproc_per_node 8 \
         --nnodes $NNODES \
         --node_rank $NODE_RANK \
@@ -90,10 +91,10 @@ PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH
         --moe-layer-freq "([0]*3+[1]*58)" \
         --moe-ffn-hidden-size 2048 \
         --moe-shared-expert-intermediate-size 2048 \
+        --moe_shared_expert_overlap \
         --moe-router-load-balancing-type seq_aux_loss \
         --moe-router-topk 8 \
-        --moe-token-dispatcher-type flex \
-        --moe-enable-deepep  \
+        --moe-token-dispatcher-type alltoall \
         --moe-router-pre-softmax  \
         --moe-grouped-gemm  \
         --moe-aux-loss-coeff 1e-4 \
