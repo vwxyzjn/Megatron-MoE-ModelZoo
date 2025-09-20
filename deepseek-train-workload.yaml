@@ -119,6 +119,14 @@ spec:
                 valueFrom:
                   fieldRef:
                     fieldPath: metadata.annotations['jobset.sigs.k8s.io/jobset-name']
+              - name: NVTE_FWD_LAYERNORM_SM_MARGIN
+                value: "8"
+              - name: NVTE_BWD_LAYERNORM_SM_MARGIN
+                value: "8"
+              - name: GLOO_SOCKET_IFNAME
+                value: "eth0"
+              - name: TORCH_DISTRIBUTED_TRACING
+                value: "ALL"
               securityContext:
                 privileged: true
               command:

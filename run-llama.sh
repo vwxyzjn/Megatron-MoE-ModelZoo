@@ -3,9 +3,11 @@ source /usr/local/gib/scripts/set_nccl_env.sh
 export TRITON_CACHE_DIR="/tmp/triton-cache/"
 #export NCCL_DEBUG=INFO
 export NCCL_DEBUG_SUBSYS=ALL
+export NCCL_SOCKET_IFNAME="eth0,eth1"
+export NCCL_TUNER_CONFIG_PATH=/usr/local/gib/configs/tuner_config_a4.txtpb
 # Environment variables for performance tuning
 export CUDA_DEVICE_MAX_CONNECTIONS=${CUDA_DEVICE_MAX_CONNECTIONS:-1}
-#export LOG_LEVEL=${LOG_LEVEL:-INFO}
+export LOG_LEVEL=${LOG_LEVEL:-INFO}
 #export NCCL_IB_TIMEOUT=${NCCL_IB_TIMEOUT:-19}
 #export NVTE_FWD_LAYERNORM_SM_MARGIN=${NVTE_FWD_LAYERNORM_SM_MARGIN:-16}
 #export NVTE_BWD_LAYERNORM_SM_MARGIN=${NVTE_BWD_LAYERNORM_SM_MARGIN:-16}
@@ -54,6 +56,8 @@ DISTRIBUTED_ARGS=(
     --node_rank $NODE_RANK
     --master_addr $MASTER_ADDR
     --master_port $MASTER_PORT
+    --rdzv_id $JOB_IDENTIFIER 
+    --rdzv_backend static 
 )
 
 MODEL_ARGS=(

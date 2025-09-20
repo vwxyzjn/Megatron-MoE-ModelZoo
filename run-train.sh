@@ -2,6 +2,9 @@
 set -euxo pipefail
 
 source /usr/local/gib/scripts/set_nccl_env.sh
+export NCCL_SOCKET_IFNAME="eth0,eth1"
+export NCCL_TUNER_CONFIG_PATH=/usr/local/gib/configs/tuner_config_a4.txtpb
+
 export TRITON_CACHE_DIR="/tmp/triton-cache/"
 #export NCCL_DEBUG=INFO
 export NCCL_DEBUG_SUBSYS=ALL
