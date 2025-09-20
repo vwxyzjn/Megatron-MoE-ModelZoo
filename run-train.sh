@@ -43,7 +43,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --use-flash-attn  \
         --disable-bias-linear  \
         --micro-batch-size 1 \
-        --global-batch-size 1024 \
+        --global-batch-size 512 \
         --train-samples 65528000 \
         --no-save-optim  \
         --no-check-for-nan-in-loss-and-grad  \
@@ -95,7 +95,6 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --moe-router-topk 8 \
         --moe-token-dispatcher-type flex \
         --moe-router-pre-softmax  \
-        --moe-grouped-gemm  \
         --moe-aux-loss-coeff 1e-4 \
         --moe-router-group-topk 4 \
         --moe-router-num-groups 8 \
