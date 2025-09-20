@@ -115,6 +115,8 @@ spec:
                 value: "0"
               - name: LD_LIBRARY_PATH
                 value: /usr/local/nvidia/lib64
+              - name: FP8_RECIPE
+                value: mxfp8
               - name: JOB_IDENTIFIER
                 valueFrom:
                   fieldRef:
