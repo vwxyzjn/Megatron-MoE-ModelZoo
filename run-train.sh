@@ -33,7 +33,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --master_port $MASTER_PORT /home/Megatron-LM/pretrain_gpt.py \
         --distributed-timeout-minutes 60 \
         --tensor-model-parallel-size 1 \
-        --pipeline-model-parallel-size 8 \
+        --pipeline-model-parallel-size 16 \
         --expert-model-parallel-size 8 \
         --context-parallel-size 1 \
         --expert-tensor-parallel-size 1 \
@@ -43,7 +43,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --use-flash-attn  \
         --disable-bias-linear  \
         --micro-batch-size 1 \
-        --global-batch-size 512 \
+        --global-batch-size 256 \
         --train-samples 65528000 \
         --no-save-optim  \
         --no-check-for-nan-in-loss-and-grad  \
