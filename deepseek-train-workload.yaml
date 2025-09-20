@@ -113,8 +113,8 @@ spec:
               # Force python to not buffer output and write directly to stdout, so we can view training logs via `kubectl logs`.
               - name: PYTHONUNBUFFERED
                 value: "0"
-              - name: LD_LIBRARY_PATH
-                value: /usr/local/nvidia/lib64
+              #- name: LD_LIBRARY_PATH
+              #  value: /usr/local/nvidia/lib64
               - name: FP8_RECIPE
                 value: mxfp8
               - name: JOB_IDENTIFIER
@@ -135,6 +135,13 @@ spec:
               - bash
               - -xc
               - |            
+                set -e        
+                LD_LIBRARY_PATH=${NVSHMEM_DIR}lib:/usr/local/nvidia/lib64:$LD_LIBRARY_PATH
+                
+                ldconfig $LD_LIBRARY_PATH
+                #echo "Added $LD_LIBRARY_PATH to ldconfig:"
+                ldconfig -p | grep libcuda | sed 's/^/  /'
+                echo ""
                 cd /home
                 rm -r -f Megatron-MoE-ModelZoo
                 #pip install megatron-core[lts] yq

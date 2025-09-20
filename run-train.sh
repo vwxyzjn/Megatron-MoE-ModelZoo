@@ -8,23 +8,18 @@ export NCCL_TUNER_CONFIG_PATH=/usr/local/gib/configs/tuner_config_a4.txtpb
 export TRITON_CACHE_DIR="/tmp/triton-cache/"
 #export NCCL_DEBUG=INFO
 export NCCL_DEBUG_SUBSYS=ALL
-#export TORCH_DISTRIBUTED_DEBUG=INFO
-#export CUDA_DEVICE_MAX_CONNECTIONS=32
-#export NVTE_FWD_LAYERNORM_SM_MARGIN=20
-#export NVTE_BWD_LAYERNORM_SM_MARGIN=20
-#export TORCH_NCCL_AVOID_RECORD_STREAMS=0
-#export NVTE_ALLOW_NONDETERMINISTIC_ALGO=1
+export CUDA_DEVICE_MAX_CONNECTIONS=32
+export NVTE_FWD_LAYERNORM_SM_MARGIN=20
+export NVTE_BWD_LAYERNORM_SM_MARGIN=20
+export TORCH_NCCL_AVOID_RECORD_STREAMS=0
+export NVTE_ALLOW_NONDETERMINISTIC_ALGO=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-#export NCCL_NVLS_ENABLE=0
-#export NVTE_FUSED_ATTN=1
-#export NVTE_NORM_FWD_USE_CUDNN=1
-#export NVTE_NORM_BWD_USE_CUDNN=1
-unset NVTE_FLASH_ATTN                                                                                                                                                  │
-unset NVTE_FUSED_ATTN                                                                                                                                                  │
-unset NVTE_UNFUSED_ATTN 
-unset NCCL_NVLS_ENABLE
-
+export NCCL_NVLS_ENABLE=0
+export NVTE_FUSED_ATTN=1
+export NVTE_NORM_FWD_USE_CUDNN=1
+export NVTE_NORM_BWD_USE_CUDNN=1
 export PYTHONWARNINGS=ignore
+
 chmod +x /home/Megatron-LM/pretrain_gpt.py
 
 PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH=/home/Megatron-LM torchrun \
