@@ -129,6 +129,8 @@ spec:
                 value: "eth0"
               - name: TORCH_DISTRIBUTED_TRACING
                 value: "ALL"
+              - name: NCCL_LOG
+                value: "DEBUG"
               securityContext:
                 privileged: true
               command:
