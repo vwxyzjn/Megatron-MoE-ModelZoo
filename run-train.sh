@@ -33,8 +33,8 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --master_port $MASTER_PORT /home/Megatron-LM/pretrain_gpt.py \
         --distributed-timeout-minutes 60 \
         --tensor-model-parallel-size 1 \
-        --pipeline-model-parallel-size 16 \
-        --expert-model-parallel-size 8 \
+        --pipeline-model-parallel-size 8 \
+        --expert-model-parallel-size 4 \
         --context-parallel-size 1 \
         --expert-tensor-parallel-size 1 \
         --use-distributed-optimizer  \
@@ -97,7 +97,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --moe-shared-expert-overlap \
         --moe-router-pre-softmax  \
         --moe-aux-loss-coeff 1e-4 \
-        --moe-router-group-topk 4 \
+        --moe-router-group-topk 1 \
         --moe-router-num-groups 8 \
         --moe-router-topk-scaling-factor 2.5 \
         --moe-router-score-function sigmoid \
