@@ -34,7 +34,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --distributed-timeout-minutes 60 \
         --tensor-model-parallel-size 1 \
         --pipeline-model-parallel-size 16 \
-        --expert-model-parallel-size 16 \
+        --expert-model-parallel-size 8 \
         --context-parallel-size 1 \
         --expert-tensor-parallel-size 1 \
         --use-distributed-optimizer  \
@@ -64,7 +64,6 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --hidden-size 7168 \
         --ffn-hidden-size 18432 \
         --num-attention-heads 128 \
-        --kv-channels 128 \
         --max-position-embeddings 4096 \
         --position-embedding-type rope \
         --rotary-base 10000 \
@@ -96,7 +95,6 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --moe-router-topk 8 \
         --moe-token-dispatcher-type alltoall \
         --moe-router-pre-softmax  \
-        --moe-grouped-gemm  \
         --moe-aux-loss-coeff 1e-4 \
         --moe-router-group-topk 4 \
         --moe-router-num-groups 8 \
