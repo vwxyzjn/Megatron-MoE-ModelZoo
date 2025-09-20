@@ -43,7 +43,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --use-flash-attn  \
         --disable-bias-linear  \
         --micro-batch-size 1 \
-        --global-batch-size 256 \
+        --global-batch-size 128 \
         --train-samples 655280 \
         --no-save-optim  \
         --no-check-for-nan-in-loss-and-grad  \
