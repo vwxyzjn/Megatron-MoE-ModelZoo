@@ -144,4 +144,4 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --exp-avg-sq-dtype bf16 \
         --moe-router-padding-for-fp8 \
         --overlap-grad-reduce \
-        --overlap-param-gather'
+        --overlap-param-gather
