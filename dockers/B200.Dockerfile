@@ -34,6 +34,8 @@ ENV NVSHMEM_DIR=/home/dpsk_a2a/deepep-nvshmem/
 ENV LD_LIBRARY_PATH=${NVSHMEM_DIR}/lib:$LD_LIBRARY_PATH
 ENV PATH=${NVSHMEM_DIR}/bin:$PATH
 
+
+
 ## Build deepep
 WORKDIR /home/dpsk_a2a/deepep
 ENV TORCH_CUDA_ARCH_LIST="10.0"
