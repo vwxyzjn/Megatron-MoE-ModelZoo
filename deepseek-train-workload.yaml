@@ -130,7 +130,7 @@ spec:
               - name: TORCH_DISTRIBUTED_TRACING
                 value: "ALL"
               - name: NCCL_LOG
-                value: "INFO"
+                value: "DEBUG"
               securityContext:
                 privileged: true
               command:
