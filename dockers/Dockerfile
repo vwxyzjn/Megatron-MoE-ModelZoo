@@ -112,9 +112,10 @@ RUN MPI_HOME=/opt/openmpi-5.0.3-ipv6-build \
     NVSHMEM_BUILD_DEB_PACKAGE=1 \
     NVSHMEM_BUILD_PACKAGE=1 \
     NVSHMEM_PERFTEST_INSTALL=/usr/local/bin \
-    cmake -S . -B build/ -DCMAKE_INSTALL_PREFIX=/home/dpsk_a2a/deepep-nvshmem/install -DCMAKE_CUDA_ARCHITECTURES=90 && cd build && make install -j
+    cmake -S . -B build/ -DCMAKE_INSTALL_PREFIX=/home/dpsk_a2a/deepep-nvshmem/install -DCMAKE_CUDA_ARCHITECTURES="90;100" && cd build && make install -j
 
 # Build deepep
+ENV TORCH_CUDA_ARCH_LIST="10.0"
 WORKDIR /home/dpsk_a2a/DeepEP
 ENV NVSHMEM_DIR=/home/dpsk_a2a/deepep-nvshmem/install
 RUN NVSHMEM_DIR=/home/dpsk_a2a/deepep-nvshmem/install python setup.py develop && \

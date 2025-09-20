@@ -86,6 +86,8 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --lr-decay-style cosine \
         --adam-beta1 0.9 \
         --adam-beta2 0.95 \
+        --num-experts 8 \
+        --moe-layer-freq "([0]*3+[1]*58)" \
         --moe-router-load-balancing-type seq_aux_loss \
         --moe-router-topk 8 \
         --moe-token-dispatcher-type alltoall \
