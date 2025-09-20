@@ -33,7 +33,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --master_port $MASTER_PORT /home/Megatron-LM/pretrain_gpt.py \
         --distributed-timeout-minutes 60 \
         --tensor-model-parallel-size 1 \
-        --pipeline-model-parallel-size 16 \
+        --pipeline-model-parallel-size 8 \
         --expert-model-parallel-size 8 \
         --context-parallel-size 1 \
         --expert-tensor-parallel-size 1 \
@@ -43,7 +43,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --use-flash-attn  \
         --disable-bias-linear  \
         --micro-batch-size 1 \
-        --global-batch-size 2048 \
+        --global-batch-size 1024 \
         --train-samples 65528000 \
         --no-save-optim  \
         --no-check-for-nan-in-loss-and-grad  \
@@ -64,6 +64,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --hidden-size 7168 \
         --ffn-hidden-size 18432 \
         --num-attention-heads 128 \
+        --kv-channels 128 \
         --max-position-embeddings 4096 \
         --position-embedding-type rope \
         --rotary-base 10000 \
@@ -86,12 +87,16 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --lr-decay-style cosine \
         --adam-beta1 0.9 \
         --adam-beta2 0.95 \
-        --num-experts 8 \
+        --num-experts 256 \
         --moe-layer-freq "([0]*3+[1]*58)" \
+        --moe-ffn-hidden-size 2048 \
+        --moe-shared-expert-intermediate-size 2048 \
         --moe-router-load-balancing-type seq_aux_loss \
         --moe-router-topk 8 \
-        --moe-token-dispatcher-type alltoall \
+        --moe-token-dispatcher-type flex \
+        --moe-enable-deepep  \
         --moe-router-pre-softmax  \
+        --moe-grouped-gemm  \
         --moe-aux-loss-coeff 1e-4 \
         --moe-router-group-topk 4 \
         --moe-router-num-groups 8 \
@@ -125,9 +130,8 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --log-throughput  \
         --log-interval 1 \
         --logging-level 40 \
-        --tensorboard-dir /gcs-dir/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/tensorboard \
+        --tensorboard-dir /gcs-dir/Megatron-MoE-ModelZoo-workspace/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/tensorboard \
         --bf16  \
-        --enable-experimental   \
         --recompute-granularity selective \
         --recompute-modules mla_up_proj moe mlp layernorm \
         --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL" \
@@ -140,5 +144,4 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --exp-avg-sq-dtype bf16 \
         --moe-router-padding-for-fp8 \
         --overlap-grad-reduce \
-        --overlap-param-gather
-
+        --overlap-param-gather'
