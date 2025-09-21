@@ -99,6 +99,7 @@ NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_
         --moe-router-topk 8 \
         --moe-token-dispatcher-type flex \
         --moe-enable-deepep \
+        --moe-grouped-gemm \
         --moe-router-pre-softmax  \
         --moe-aux-loss-coeff 1e-4 \
         --moe-router-group-topk 1 \
