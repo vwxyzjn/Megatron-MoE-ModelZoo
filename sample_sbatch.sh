@@ -148,7 +148,7 @@ srun \
         --enable-experimental   \
         --recompute-granularity selective \
         --recompute-modules mla_up_proj moe mlp layernorm \
-        --pipeline-model-parallel-layout "Et*2|(tt|)*2t|(tt|)*7mL" \
+        --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL" \
         --fp8-recipe blockwise \
         --fp8-format e4m3 \
         --use-precision-aware-optimizer \
