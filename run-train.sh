@@ -31,7 +31,7 @@ chmod +x /home/Megatron-LM/pretrain_gpt.py
 #--recompute-modules mla_up_proj moe mlp layernorm \
 #--fp8-recipe blockwise, GEMM does not support B200 
 
-NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH=/home/Megatron-LM  DEEPEP_COMM_TIMEOUT_MS=30000 torchrun \
+PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH=/home/Megatron-LM  DEEPEP_COMM_TIMEOUT_MS=30000 torchrun \
         --nproc_per_node 8 \
         --nnodes $NNODES \
         --node_rank $NODE_RANK \
@@ -51,7 +51,7 @@ NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_
         --use-flash-attn  \
         --disable-bias-linear  \
         --micro-batch-size 1 \
-        --global-batch-size 256 \
+        --global-batch-size 512 \
         --train-samples 655280 \
         --no-save-optim  \
         --no-check-for-nan-in-loss-and-grad  \
@@ -96,7 +96,7 @@ NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_
         --adam-beta1 0.9 \
         --adam-beta2 0.95 \
         --num-experts 256 \
-        --moe-layer-freq "([0]*3+[1]*8)" \
+        --moe-layer-freq "([0]*3+[1]*58)" \
         --moe-ffn-hidden-size 2048 \
         --moe-shared-expert-intermediate-size 2048 \
         --moe-router-load-balancing-type seq_aux_loss \
@@ -140,7 +140,7 @@ NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_
         --tensorboard-dir /gcs-dir/Megatron-MoE-ModelZoo-workspace/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/tensorboard \
         --bf16  \
         --enable-experimental \
-        --pipeline-model-parallel-layout "Et*2|(tt|)*2t|(tt|)*7mL" \
+        --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL" \
         --fp8-recipe $FP8_RECIPE \
         --fp8-format e4m3 \
         --use-precision-aware-optimizer \
