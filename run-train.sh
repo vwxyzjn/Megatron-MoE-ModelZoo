@@ -41,10 +41,10 @@ NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_
         --master_port $MASTER_PORT /home/Megatron-LM/pretrain_gpt.py \
         --distributed-timeout-minutes 60 \
         --tensor-model-parallel-size 2 \
-        --pipeline-model-parallel-size 8 \
-        --expert-model-parallel-size 2 \
+        --pipeline-model-parallel-size 16 \
+        --expert-model-parallel-size 8 \
         --context-parallel-size 1 \
-        --expert-tensor-parallel-size 4 \
+        --expert-tensor-parallel-size 1 \
         --use-distributed-optimizer  \
         --use-mcore-models  \
         --sequence-parallel  \
@@ -68,7 +68,7 @@ NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_
         --no-mmap-bin-files  \
         --no-create-attention-mask-in-dataloader  \
         --num-workers 6 \
-        --num-layers 61 \
+        --num-layers 11 \
         --hidden-size 7168 \
         --ffn-hidden-size 18432 \
         --num-attention-heads 128 \
@@ -96,7 +96,7 @@ NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_
         --adam-beta1 0.9 \
         --adam-beta2 0.95 \
         --num-experts 256 \
-        --moe-layer-freq "([0]*3+[1]*58)" \
+        --moe-layer-freq "([0]*3+[1]*8)" \
         --moe-ffn-hidden-size 2048 \
         --moe-shared-expert-intermediate-size 2048 \
         --moe-router-load-balancing-type seq_aux_loss \
