@@ -38,7 +38,7 @@ NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_
         --distributed-timeout-minutes 60 \
         --tensor-model-parallel-size 2 \
         --pipeline-model-parallel-size 8 \
-        --expert-model-parallel-size 1 \
+        --expert-model-parallel-size 2 \
         --context-parallel-size 1 \
         --expert-tensor-parallel-size 1 \
         --use-distributed-optimizer  \
