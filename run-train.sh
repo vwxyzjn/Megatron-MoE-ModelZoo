@@ -37,7 +37,7 @@ NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_
         --master_port $MASTER_PORT /home/Megatron-LM/pretrain_gpt.py \
         --distributed-timeout-minutes 60 \
         --tensor-model-parallel-size 1 \
-        --pipeline-model-parallel-size 16 \
+        --pipeline-model-parallel-size 8 \
         --expert-model-parallel-size 2 \
         --context-parallel-size 1 \
         --expert-tensor-parallel-size 1 \
@@ -47,7 +47,7 @@ NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_
         --use-flash-attn  \
         --disable-bias-linear  \
         --micro-batch-size 1 \
-        --global-batch-size 1024 \
+        --global-batch-size 512 \
         --train-samples 655280 \
         --no-save-optim  \
         --no-check-for-nan-in-loss-and-grad  \
