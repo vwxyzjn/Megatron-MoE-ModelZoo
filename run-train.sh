@@ -27,7 +27,7 @@ chmod +x /home/Megatron-LM/pretrain_gpt.py
 
 #--moe-shared-expert-overlap \
 # --moe-token-dispatcher-type alltoall \
-NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH=/home/Megatron-LM CUDA_LAUNCH_BLOCKING=1 DEEPEP_COMM_TIMEOUT_MS=30000 torchrun \
+NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH=/home/Megatron-LM  DEEPEP_COMM_TIMEOUT_MS=30000 torchrun \
         --nproc_per_node 8 \
         --nnodes $NNODES \
         --node_rank $NODE_RANK \
@@ -36,7 +36,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --rdzv_backend static \
         --master_port $MASTER_PORT /home/Megatron-LM/pretrain_gpt.py \
         --distributed-timeout-minutes 60 \
-        --tensor-model-parallel-size 2 \
+        --tensor-model-parallel-size 1 \
         --pipeline-model-parallel-size 16 \
         --expert-model-parallel-size 8 \
         --context-parallel-size 1 \
@@ -56,7 +56,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --manual-gc  \
         --manual-gc-interval 10 \
         --transformer-impl transformer_engine \
-        --seq-length 4096 \
+        --seq-length 2048 \
         --tokenizer-type HuggingFaceTokenizer \
         --tokenizer-model deepseek-ai/DeepSeek-V3 \
         --mock-data  \
