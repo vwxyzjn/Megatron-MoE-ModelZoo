@@ -40,11 +40,11 @@ NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_
         --rdzv_backend static \
         --master_port $MASTER_PORT /home/Megatron-LM/pretrain_gpt.py \
         --distributed-timeout-minutes 60 \
-        --tensor-model-parallel-size 1 \
+        --tensor-model-parallel-size 2 \
         --pipeline-model-parallel-size 8 \
-        --expert-model-parallel-size 4 \
+        --expert-model-parallel-size 1 \
         --context-parallel-size 1 \
-        --expert-tensor-parallel-size 1 \
+        --expert-tensor-parallel-size 4 \
         --use-distributed-optimizer  \
         --use-mcore-models  \
         --sequence-parallel  \
@@ -103,6 +103,7 @@ NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_
         --moe-router-topk 8 \
         --moe-token-dispatcher-type flex \
         --moe-enable-deepep \
+        --moe-token-capacity-factor 1.0 \
         --moe-router-pre-softmax  \
         --moe-aux-loss-coeff 1e-4 \
         --moe-router-group-topk 1 \
