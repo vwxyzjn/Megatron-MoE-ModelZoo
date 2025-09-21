@@ -38,7 +38,7 @@ NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_
         --distributed-timeout-minutes 60 \
         --tensor-model-parallel-size 1 \
         --pipeline-model-parallel-size 8 \
-        --expert-model-parallel-size 2 \
+        --expert-model-parallel-size 4 \
         --context-parallel-size 1 \
         --expert-tensor-parallel-size 1 \
         --use-distributed-optimizer  \
@@ -143,8 +143,8 @@ NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_
         --fp8-recipe $FP8_RECIPE \
         --fp8-format e4m3 \
         --use-precision-aware-optimizer \
-        --main-grads-dtype fp32 \
-        --main-params-dtype fp32 \
+        --main-grads-dtype bf16 \
+        --main-params-dtype bf16 \
         --exp-avg-dtype bf16 \
         --exp-avg-sq-dtype bf16 \
         --moe-router-padding-for-fp8 \
