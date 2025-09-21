@@ -27,7 +27,7 @@ chmod +x /home/Megatron-LM/pretrain_gpt.py
 
 #--moe-shared-expert-overlap \
 # --moe-token-dispatcher-type alltoall \
-NVSHMEM_HCA_LIST=mlx5_${local_rank} NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH=/home/Megatron-LM  DEEPEP_COMM_TIMEOUT_MS=30000 torchrun \
+NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH=/home/Megatron-LM  DEEPEP_COMM_TIMEOUT_MS=30000 torchrun \
         --nproc_per_node 8 \
         --nnodes $NNODES \
         --node_rank $NODE_RANK \
