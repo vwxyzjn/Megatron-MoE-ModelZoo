@@ -20,11 +20,14 @@ export NVTE_NORM_FWD_USE_CUDNN=1
 export NVTE_NORM_BWD_USE_CUDNN=1
 export PYTHONWARNINGS=ignore
 
+#add
+export DEEPEP_COMM_TIMEOUT_MS=30000 
+
 chmod +x /home/Megatron-LM/pretrain_gpt.py
 
 #--moe-shared-expert-overlap \
 # --moe-token-dispatcher-type alltoall \
-NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH=/home/Megatron-LM torchrun \
+NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH=/home/Megatron-LM CUDA_LAUNCH_BLOCKING=1 DEEPEP_COMM_TIMEOUT_MS=30000 torchrun \
         --nproc_per_node 8 \
         --nnodes $NNODES \
         --node_rank $NODE_RANK \
