@@ -143,7 +143,7 @@ NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_
         --fp8-recipe $FP8_RECIPE \
         --fp8-format e4m3 \
         --use-precision-aware-optimizer \
-        --main-grads-dtype fp16 \
+        --main-grads-dtype bf16 \
         --main-params-dtype fp16 \
         --exp-avg-dtype bf16 \
         --exp-avg-sq-dtype bf16 \
