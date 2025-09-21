@@ -36,9 +36,9 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --rdzv_backend static \
         --master_port $MASTER_PORT /home/Megatron-LM/pretrain_gpt.py \
         --distributed-timeout-minutes 60 \
-        --tensor-model-parallel-size 1 \
+        --tensor-model-parallel-size 2 \
         --pipeline-model-parallel-size 16 \
-        --expert-model-parallel-size 8 \
+        --expert-model-parallel-size 1 \
         --context-parallel-size 1 \
         --expert-tensor-parallel-size 1 \
         --use-distributed-optimizer  \
@@ -47,7 +47,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --use-flash-attn  \
         --disable-bias-linear  \
         --micro-batch-size 1 \
-        --global-batch-size 2048 \
+        --global-batch-size 1024 \
         --train-samples 655280 \
         --no-save-optim  \
         --no-check-for-nan-in-loss-and-grad  \
@@ -56,7 +56,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --manual-gc  \
         --manual-gc-interval 10 \
         --transformer-impl transformer_engine \
-        --seq-length 2048 \
+        --seq-length 512 \
         --tokenizer-type HuggingFaceTokenizer \
         --tokenizer-model deepseek-ai/DeepSeek-V3 \
         --mock-data  \
