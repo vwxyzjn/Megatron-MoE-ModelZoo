@@ -34,7 +34,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --distributed-timeout-minutes 60 \
         --tensor-model-parallel-size 2 \
         --pipeline-model-parallel-size 16 \
-        --expert-model-parallel-size 4 \
+        --expert-model-parallel-size 8 \
         --context-parallel-size 1 \
         --expert-tensor-parallel-size 1 \
         --use-distributed-optimizer  \
@@ -43,7 +43,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --use-flash-attn  \
         --disable-bias-linear  \
         --micro-batch-size 1 \
-        --global-batch-size 128 \
+        --global-batch-size 2048 \
         --train-samples 655280 \
         --no-save-optim  \
         --no-check-for-nan-in-loss-and-grad  \
@@ -93,7 +93,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --moe-shared-expert-intermediate-size 2048 \
         --moe-router-load-balancing-type seq_aux_loss \
         --moe-router-topk 8 \
-        --moe-token-dispatcher-type alltoall \
+        --moe-token-dispatcher-type flex \
         --moe-shared-expert-overlap \
         --moe-enable-deepep \
         --moe-router-pre-softmax  \
