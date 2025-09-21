@@ -36,7 +36,7 @@ NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_
         --rdzv_backend static \
         --master_port $MASTER_PORT /home/Megatron-LM/pretrain_gpt.py \
         --distributed-timeout-minutes 60 \
-        --tensor-model-parallel-size 2 \
+        --tensor-model-parallel-size 1 \
         --pipeline-model-parallel-size 8 \
         --expert-model-parallel-size 2 \
         --context-parallel-size 1 \
