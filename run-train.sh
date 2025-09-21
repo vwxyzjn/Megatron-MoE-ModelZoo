@@ -95,6 +95,7 @@ NCCL_DEBUG=$NCCL_LOG PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_
         --moe-router-topk 8 \
         --moe-token-dispatcher-type alltoall \
         --moe-shared-expert-overlap \
+        --moe-enable-deepep \
         --moe-router-pre-softmax  \
         --moe-aux-loss-coeff 1e-4 \
         --moe-router-group-topk 1 \
