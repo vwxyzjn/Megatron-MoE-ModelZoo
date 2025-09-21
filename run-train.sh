@@ -68,7 +68,7 @@ PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH
         --no-mmap-bin-files  \
         --no-create-attention-mask-in-dataloader  \
         --num-workers 6 \
-        --num-layers 11 \
+        --num-layers 61 \
         --hidden-size 7168 \
         --ffn-hidden-size 18432 \
         --num-attention-heads 128 \
