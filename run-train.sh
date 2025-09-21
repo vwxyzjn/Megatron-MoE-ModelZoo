@@ -27,6 +27,10 @@ chmod +x /home/Megatron-LM/pretrain_gpt.py
 
 #--moe-shared-expert-overlap \
 # --moe-token-dispatcher-type alltoall \
+#--recompute-granularity selective \
+#--recompute-modules mla_up_proj moe mlp layernorm \
+#--fp8-recipe blockwise, GEMM does not support B200 
+
 NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH=/home/Megatron-LM  DEEPEP_COMM_TIMEOUT_MS=30000 torchrun \
         --nproc_per_node 8 \
         --nnodes $NNODES \
@@ -136,8 +140,6 @@ NVSHMEM_HCA_LIST=f'mlx5_{NODE_RANK}:1' NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_
         --tensorboard-dir /gcs-dir/Megatron-MoE-ModelZoo-workspace/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/tensorboard \
         --bf16  \
         --enable-experimental \
-        --recompute-granularity selective \
-        --recompute-modules mla_up_proj moe mlp layernorm \
         --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL" \
         --fp8-recipe $FP8_RECIPE \
         --fp8-format e4m3 \
