@@ -40,7 +40,7 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --rdzv_backend static \
         --master_port $MASTER_PORT /home/Megatron-LM/pretrain_gpt.py \
         --distributed-timeout-minutes 60 \
-        --tensor-model-parallel-size 2 \
+        --tensor-model-parallel-size 1 \
         --pipeline-model-parallel-size 16 \
         --expert-model-parallel-size 8 \
         --context-parallel-size 1 \
