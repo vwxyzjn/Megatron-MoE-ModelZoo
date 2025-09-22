@@ -60,7 +60,7 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --manual-gc  \
         --manual-gc-interval 10 \
         --transformer-impl transformer_engine \
-        --seq-length 2048 \
+        --seq-length 512 \
         --tokenizer-type HuggingFaceTokenizer \
         --tokenizer-model deepseek-ai/DeepSeek-V3 \
         --mock-data  \
