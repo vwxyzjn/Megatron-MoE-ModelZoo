@@ -40,9 +40,9 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --rdzv_backend static \
         --master_port $MASTER_PORT /home/Megatron-LM/pretrain_gpt.py \
         --distributed-timeout-minutes 60 \
-        --tensor-model-parallel-size 2 \
-        --pipeline-model-parallel-size 16 \
-        --expert-model-parallel-size 8 \
+        --tensor-model-parallel-size 1 \
+        --pipeline-model-parallel-size 4 \
+        --expert-model-parallel-size 4 \
         --context-parallel-size 1 \
         --expert-tensor-parallel-size 1 \
         --use-distributed-optimizer  \
@@ -51,7 +51,7 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --use-flash-attn  \
         --disable-bias-linear  \
         --micro-batch-size 1 \
-        --global-batch-size 2048 \
+        --global-batch-size 128 \
         --train-samples 655280 \
         --no-save-optim  \
         --no-check-for-nan-in-loss-and-grad  \
@@ -60,7 +60,7 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --manual-gc  \
         --manual-gc-interval 10 \
         --transformer-impl transformer_engine \
-        --seq-length 4096 \
+        --seq-length 2048 \
         --tokenizer-type HuggingFaceTokenizer \
         --tokenizer-model deepseek-ai/DeepSeek-V3 \
         --mock-data  \
@@ -95,7 +95,7 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --lr-decay-style cosine \
         --adam-beta1 0.9 \
         --adam-beta2 0.95 \
-        --num-experts 256 \
+        --num-experts 8 \
         --moe-layer-freq "([0]*3+[1]*58)" \
         --moe-ffn-hidden-size 2048 \
         --moe-shared-expert-intermediate-size 2048 \
