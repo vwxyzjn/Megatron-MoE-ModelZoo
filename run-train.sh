@@ -41,8 +41,8 @@ PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH
         --master_port $MASTER_PORT /home/Megatron-LM/pretrain_gpt.py \
         --distributed-timeout-minutes 60 \
         --tensor-model-parallel-size 1 \
-        --pipeline-model-parallel-size 4 \
-        --expert-model-parallel-size 4 \
+        --pipeline-model-parallel-size 16 \
+        --expert-model-parallel-size 8 \
         --context-parallel-size 1 \
         --expert-tensor-parallel-size 1 \
         --use-distributed-optimizer  \
@@ -51,7 +51,7 @@ PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH
         --use-flash-attn  \
         --disable-bias-linear  \
         --micro-batch-size 1 \
-        --global-batch-size 128 \
+        --global-batch-size 512 \
         --train-samples 655280 \
         --no-save-optim  \
         --no-check-for-nan-in-loss-and-grad  \
@@ -95,7 +95,7 @@ PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH
         --lr-decay-style cosine \
         --adam-beta1 0.9 \
         --adam-beta2 0.95 \
-        --num-experts 8 \
+        --num-experts 256 \
         --moe-layer-freq "([0]*3+[1]*58)" \
         --moe-ffn-hidden-size 2048 \
         --moe-shared-expert-intermediate-size 2048 \
