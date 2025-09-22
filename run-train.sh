@@ -95,7 +95,7 @@ PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH
         --lr-decay-style cosine \
         --adam-beta1 0.9 \
         --adam-beta2 0.95 \
-        --num-experts 256 \
+        --num-experts 8 \
         --moe-layer-freq "([0]*3+[1]*58)" \
         --moe-ffn-hidden-size 2048 \
         --moe-shared-expert-intermediate-size 2048 \
