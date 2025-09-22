@@ -31,7 +31,7 @@ chmod +x /home/Megatron-LM/pretrain_gpt.py
 #--recompute-modules mla_up_proj moe mlp layernorm \
 #--fp8-recipe blockwise, GEMM does not support B200 
 
-PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH=/home/Megatron-LM  DEEPEP_COMM_TIMEOUT_MS=30000 torchrun \
+NVSHMEM_HCA_LIST=mlx5_${LOCAL_RANK} NVSHMEM_ENABLE_NIC_PE_MAPPING=1  PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH=/home/Megatron-LM TORCH_NCCL_ENABLE_MONITORING=0 DEEPEP_COMM_TIMEOUT_MS=30000 torchrun \
         --nproc_per_node 8 \
         --nnodes $NNODES \
         --node_rank $NODE_RANK \
@@ -40,7 +40,7 @@ PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH
         --rdzv_backend static \
         --master_port $MASTER_PORT /home/Megatron-LM/pretrain_gpt.py \
         --distributed-timeout-minutes 60 \
-        --tensor-model-parallel-size 2 \
+        --tensor-model-parallel-size 1 \
         --pipeline-model-parallel-size 16 \
         --expert-model-parallel-size 8 \
         --context-parallel-size 1 \
