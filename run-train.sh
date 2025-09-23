@@ -42,7 +42,7 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --distributed-timeout-minutes 60 \
         --tensor-model-parallel-size 1 \
         --pipeline-model-parallel-size 8 \
-        --expert-model-parallel-size 16 \
+        --expert-model-parallel-size 32 \
         --context-parallel-size 1 \
         --expert-tensor-parallel-size 1 \
         --use-distributed-optimizer  \
@@ -148,9 +148,10 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --main-params-dtype fp16 \
         --exp-avg-dtype bf16 \
         --exp-avg-sq-dtype bf16 \
-        --moe-token-dispatcher-type alltoall \
-        --overlap-grad-reduce \
-        --overlap-param-gather
+        --moe-token-dispatcher-type alltoall
+        
+        # --overlap-grad-reduce \
+        #--overlap-param-gather
 
 # without deepep
 # --moe-token-dispatcher-type flex \
