@@ -46,6 +46,8 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --context-parallel-size 1 \
         --expert-tensor-parallel-size 1 \
         --use-distributed-optimizer  \
+        --overlap-grad-reduce  \
+        --overlap-param-gather  \
         --use-mcore-models  \
         --sequence-parallel  \
         --use-flash-attn  \
@@ -101,10 +103,12 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --moe-shared-expert-intermediate-size 2048 \
         --moe-router-load-balancing-type seq_aux_loss \
         --moe-router-topk 8 \
-        --moe-router-pre-softmax  \
+        --moe-token-dispatcher-type flex \
+        --moe-enable-deepep  \
+        --moe-grouped-gemm  \
         --moe-aux-loss-coeff 1e-4 \
-        --moe-router-group-topk 1 \
-        --moe-router-num-groups 1 \
+        --moe-router-group-topk 4 \
+        --moe-router-num-groups 8 \
         --moe-router-topk-scaling-factor 2.5 \
         --moe-router-score-function sigmoid \
         --moe-router-enable-expert-bias  \
@@ -126,6 +130,7 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --no-load-optim  \
         --no-load-rng  \
         --auto-detect-ckpt-format  \
+        --load /gcs-dir/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/checkpoints \
         --save /gcs-dir/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/checkpoints \
         --save-interval 10000000 \
         --dist-ckpt-strictness log_all \
@@ -137,23 +142,19 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --logging-level 40 \
         --tensorboard-dir /gcs-dir/Megatron-MoE-ModelZoo-workspace/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/tensorboard \
         --bf16  \
-        --enable-experimental \
+        --enable-experimental   \
         --recompute-granularity selective \
         --recompute-modules mla_up_proj moe mlp layernorm \
-        --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL" \
-        --fp8-recipe $FP8_RECIPE \
+        --pipeline-model-parallel-layout Et*3|(tt|)*29|mL \
+        --fp8-recipe mxfp8 \
         --fp8-format e4m3 \
+        --fp8-param-gather \
+        --reuse-grad-buf-for-mxfp8-param-ag \
         --use-precision-aware-optimizer \
-        --main-grads-dtype bf16 \
-        --main-params-dtype fp16 \
+        --main-grads-dtype fp32 \
+        --main-params-dtype fp32 \
         --exp-avg-dtype bf16 \
         --exp-avg-sq-dtype bf16 \
-        --moe-token-dispatcher-type alltoall
-        
-        # --overlap-grad-reduce \
-        #--overlap-param-gather
-
-# without deepep
-# --moe-token-dispatcher-type flex \
-# --moe-enable-deepep \
-# --moe-router-padding-for-fp8 \
+        --moe-router-padding-for-fp8 \
+        --delay-wgrad-compute \
+        --overlap-moe-expert-parallel-comm
