@@ -21,7 +21,7 @@ export NVTE_NORM_BWD_USE_CUDNN=1
 export PYTHONWARNINGS=ignore
 
 #add
-export DEEPEP_COMM_TIMEOUT_MS=30000 
+export DEEPEP_COMM_TIMEOUT_MS=30000
 
 chmod +x /home/Megatron-LM/pretrain_gpt.py
 
@@ -29,7 +29,7 @@ chmod +x /home/Megatron-LM/pretrain_gpt.py
 # --moe-token-dispatcher-type alltoall \
 #--recompute-granularity selective \
 #--recompute-modules mla_up_proj moe mlp layernorm \
-#--fp8-recipe blockwise, GEMM does not support B200 
+#--fp8-recipe blockwise, GEMM does not support B200
 
 NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_THREADS=8 PYTHON_PATH=/home/Megatron-LM TORCH_NCCL_ENABLE_MONITORING=0 DEEPEP_COMM_TIMEOUT_MS=30000 torchrun \
         --nproc_per_node 8 \
@@ -41,8 +41,8 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --master_port $MASTER_PORT /home/Megatron-LM/pretrain_gpt.py \
         --distributed-timeout-minutes 60 \
         --tensor-model-parallel-size 1 \
-        --pipeline-model-parallel-size 16 \
-        --expert-model-parallel-size 8 \
+        --pipeline-model-parallel-size 8 \
+        --expert-model-parallel-size 32 \
         --context-parallel-size 1 \
         --expert-tensor-parallel-size 1 \
         --use-distributed-optimizer  \
@@ -104,9 +104,10 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --moe-token-dispatcher-type flex \
         --moe-enable-deepep \
         --moe-router-pre-softmax  \
+        --moe-grouped-gemm  \
         --moe-aux-loss-coeff 1e-4 \
-        --moe-router-group-topk 1 \
-        --moe-router-num-groups 1 \
+        --moe-router-group-topk 4 \
+        --moe-router-num-groups 8 \
         --moe-router-topk-scaling-factor 2.5 \
         --moe-router-score-function sigmoid \
         --moe-router-enable-expert-bias  \
@@ -128,6 +129,7 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --no-load-optim  \
         --no-load-rng  \
         --auto-detect-ckpt-format  \
+        --load /gcs-dir/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/checkpoints \
         --save /gcs-dir/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/checkpoints \
         --save-interval 10000000 \
         --dist-ckpt-strictness log_all \
@@ -140,12 +142,14 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --tensorboard-dir /gcs-dir/Megatron-MoE-ModelZoo-workspace/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/tensorboard \
         --bf16  \
         --enable-experimental \
+        --recompute-granularity selective \
+        --recompute-modules mla_up_proj moe mlp layernorm \
         --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL" \
-        --fp8-recipe $FP8_RECIPE \
+        --fp8-recipe blockwise \
         --fp8-format e4m3 \
         --use-precision-aware-optimizer \
-        --main-grads-dtype bf16 \
-        --main-params-dtype fp16 \
+        --main-grads-dtype fp32 \
+        --main-params-dtype fp32 \
         --exp-avg-dtype bf16 \
         --exp-avg-sq-dtype bf16 \
         --moe-router-padding-for-fp8 \
