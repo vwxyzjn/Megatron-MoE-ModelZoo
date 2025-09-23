@@ -115,6 +115,7 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --moe-router-bias-update-rate 1e-3 \
         --moe-router-dtype fp32 \
         --moe-permute-fusion  \
+        --moe-router-fusion  \
         --q-lora-rank 1536 \
         --kv-lora-rank 512 \
         --qk-head-dim 128 \
@@ -145,7 +146,7 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --enable-experimental   \
         --recompute-granularity selective \
         --recompute-modules mla_up_proj moe mlp layernorm \
-        --pipeline-model-parallel-layout Et*3|(tt|)*29|mL \
+        --pipeline-model-parallel-layout "Et*3|(tt|)*29|mL" \
         --fp8-recipe mxfp8 \
         --fp8-format e4m3 \
         --fp8-param-gather \
