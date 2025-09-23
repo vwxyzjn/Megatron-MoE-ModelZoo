@@ -42,7 +42,7 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --distributed-timeout-minutes 60 \
         --tensor-model-parallel-size 1 \
         --pipeline-model-parallel-size 8 \
-        --expert-model-parallel-size 32 \
+        --expert-model-parallel-size 16 \
         --context-parallel-size 1 \
         --expert-tensor-parallel-size 1 \
         --use-distributed-optimizer  \
@@ -101,12 +101,10 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --moe-shared-expert-intermediate-size 2048 \
         --moe-router-load-balancing-type seq_aux_loss \
         --moe-router-topk 8 \
-        --moe-token-dispatcher-type flex \
-        --moe-enable-deepep \
         --moe-router-pre-softmax  \
         --moe-aux-loss-coeff 1e-4 \
-        --moe-router-group-topk 4 \
-        --moe-router-num-groups 8 \
+        --moe-router-group-topk 1 \
+        --moe-router-num-groups 1 \
         --moe-router-topk-scaling-factor 2.5 \
         --moe-router-score-function sigmoid \
         --moe-router-enable-expert-bias  \
@@ -128,7 +126,6 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --no-load-optim  \
         --no-load-rng  \
         --auto-detect-ckpt-format  \
-        --load /gcs-dir/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/checkpoints \
         --save /gcs-dir/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/checkpoints \
         --save-interval 10000000 \
         --dist-ckpt-strictness log_all \
@@ -151,6 +148,11 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --main-params-dtype fp16 \
         --exp-avg-dtype bf16 \
         --exp-avg-sq-dtype bf16 \
-        --moe-router-padding-for-fp8 \
+        --moe-token-dispatcher-type alltoall \
         --overlap-grad-reduce \
         --overlap-param-gather
+
+# without deepep
+# --moe-token-dispatcher-type flex \
+# --moe-enable-deepep \
+# --moe-router-padding-for-fp8 \
