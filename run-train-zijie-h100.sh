@@ -55,14 +55,14 @@ TOKENIZER_ARGS=(
 )
 
 DATA_ARGS=(
-    --data-path /mnt/nvme/deepseek-v3-data2/processed_data_text_document
+#     --data-path /mnt/nvme/deepseek-v3-data2/processed_data_text_document
     --split 99,1,0
     --no-create-attention-mask-in-dataloader
     --no-mmap-bin-files
     --num-workers 6
-    --data-cache-path /mnt/nvme/tmp/dataset_cache
+#     --data-cache-path /mnt/nvme/tmp/dataset_cache
     # Alternatively, if you don't want to use a dataset, you can use mock data:
-    # --mock-data \
+    --mock-data \
     # --lr-warmup-samples 1536000
 
     # Iteration-based training
