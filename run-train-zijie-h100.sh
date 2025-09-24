@@ -123,7 +123,6 @@ TRAINING_ARGS=(
     --manual-gc
     --manual-gc-interval 10
     --transformer-impl transformer_engine
-    # --exit-duration-in-mins 220 # we don't want this to exit
 
     # Regularization args
     --attention-dropout 0.0
@@ -164,10 +163,10 @@ LOGGING_ARGS=(
     --tensorboard-dir /mnt/nvme/model/tensorboard
 )
 
-EVAL_ARGS=(
-    # --eval-iters 32
-    # --eval-interval 200
-)
+# EVAL_ARGS=(
+#     --eval-iters 10000
+#     --eval-interval 10000000
+# )
 
 NETWORK_ARGS=(
     --disable-bias-linear

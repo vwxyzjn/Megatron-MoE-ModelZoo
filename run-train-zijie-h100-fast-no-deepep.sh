@@ -67,7 +67,10 @@ PERF_ARGS=(
     --expert-model-parallel-size 32
     --context-parallel-size 1
     --expert-tensor-parallel-size 1
-    --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL"
+    # layout
+    # `"Et*2|(tt|)*22t|(tt|)*7mL"` would include the `mtp` loss; the checkpoint we converted did not include the `mtp` loss
+    --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7L"
+    # --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL"
 
     # Recompute args (activation checkpointing)
     # --recompute-granularity full
@@ -79,13 +82,13 @@ PERF_ARGS=(
     --recompute-granularity selective
     --recompute-modules mla_up_proj moe mlp layernorm
 
-    # # Offload args
-    # --optimizer-cpu-offload
-    # --overlap-cpu-optimizer-d2h-h2d
+    # Offload args
+    --optimizer-cpu-offload
+    --overlap-cpu-optimizer-d2h-h2d
 
-    # # Overlap args
-    # --overlap-grad-reduce
-    # --overlap-param-gather
+    # Overlap args
+    --overlap-grad-reduce
+    --overlap-param-gather
 )
 
 TRAINING_ARGS=(
@@ -113,8 +116,6 @@ TRAINING_ARGS=(
     # Training args
     --sequence-parallel
     --use-flash-attn
-
-    # Misc
     --no-save-optim
     --no-check-for-nan-in-loss-and-grad
     --cross-entropy-loss-fusion
@@ -144,9 +145,9 @@ TRAINING_ARGS=(
 )
 
 CHECKPOINTING_ARGS=(
-    --load /path/to/DeepSeek-V3-dist/torch_dist/
-    --save /mnt/home/costa/periodic-mono/thirdparty/Megatron-MoE-ModelZoo-workspace/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/checkpoints
-    --save-interval 10000000
+    --load /mnt/nvme/model
+    --save /mnt/nvme/model
+    --save-interval 500
     --no-load-optim
     --no-load-rng
     --auto-detect-ckpt-format
@@ -159,7 +160,7 @@ LOGGING_ARGS=(
     --log-throughput
     --log-interval 1
     --logging-level 40
-    --tensorboard-dir /mnt/home/costa/periodic-mono/thirdparty/Megatron-MoE-ModelZoo-workspace/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/tensorboard
+    --tensorboard-dir /mnt/nvme/model/tensorboard
 )
 
 # EVAL_ARGS=(
@@ -203,8 +204,8 @@ MOE_ARGS=(
     --moe-router-bias-update-rate 1e-3
     --moe-router-dtype fp32
     --moe-permute-fusion
-    --moe-router-fusion
-    --moe-router-padding-for-fp8
+    # --moe-router-fusion
+    # --moe-router-padding-for-fp8
 
     # The following are not compatible with our EFA setup
     # They are infiniband only: they can make the training go much faster
@@ -226,8 +227,8 @@ MLA_ARGS=(
 )
 
 FP8_ARGS=(
-    --fp8-recipe mxfp8
-    --fp8-format e4m3
+    # --fp8-recipe mxfp8
+    # --fp8-format e4m3
 )
 
 NEW_1F1A_ARGS=(
