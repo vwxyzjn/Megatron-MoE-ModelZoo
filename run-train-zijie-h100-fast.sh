@@ -123,7 +123,7 @@ TRAINING_ARGS=(
     --manual-gc
     --manual-gc-interval 10
     --transformer-impl transformer_engine
-    
+
     # Regularization args
     --attention-dropout 0.0
     --hidden-dropout 0.0
@@ -205,6 +205,7 @@ MOE_ARGS=(
     --moe-router-bias-update-rate 1e-3
     --moe-router-dtype fp32
     --moe-permute-fusion
+    --moe-router-fusion
     --moe-router-padding-for-fp8
 )
 
@@ -222,8 +223,13 @@ MLA_ARGS=(
 )
 
 FP8_ARGS=(
-    --fp8-recipe blockwise
+    --fp8-recipe mxfp8
     --fp8-format e4m3
+)
+
+NEW_1F1A_ARGS=(
+    # --delay-wgrad-compute
+    # --overlap-moe-expert-parallel-comm
 )
 
 torchrun \
@@ -239,4 +245,5 @@ torchrun \
     ${MOE_ARGS[@]} \
     ${MLA_ARGS[@]} \
     ${FP8_ARGS[@]} \
+    ${NEW_1F1A_ARGS[@]} \
     "$@" # pass in extra or override arguments

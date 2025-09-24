@@ -52,14 +52,25 @@ TOKENIZER_ARGS=(
 )
 
 DATA_ARGS=(
+#     --data-path /mnt/nvme/deepseek-v3-data2/processed_data_text_document
     --split 99,1,0
-    --no-mmap-bin-files
     --no-create-attention-mask-in-dataloader
+    --no-mmap-bin-files
     --num-workers 6
-    --mock-data
+#     --data-cache-path /mnt/nvme/tmp/dataset_cache
+    # Alternatively, if you don't want to use a dataset, you can use mock data:
+    --mock-data \
+    # --lr-warmup-samples 1536000
+
+    # Iteration-based training
     --train-iters 10000
     --lr-decay-iters 10000
     --lr-warmup-iters 1000
+
+    # Sample-based training
+    # --train-samples 268554688 \
+    # --lr-decay-samples 584765624
+    # --lr-warmup-samples 1536000
 )
 
 PERF_ARGS=(
@@ -89,7 +100,6 @@ PERF_ARGS=(
     # Overlap comm/compute
     --overlap-grad-reduce
     --overlap-param-gather
-    --overlap-moe-expert-parallel-comm
 )
 
 TRAINING_ARGS=(
@@ -126,6 +136,7 @@ TRAINING_ARGS=(
     --manual-gc
     --manual-gc-interval 10
     --transformer-impl transformer_engine
+
     # Regularization args
     --attention-dropout 0.0
     --hidden-dropout 0.0
@@ -165,10 +176,10 @@ LOGGING_ARGS=(
     --tensorboard-dir /gcs-dir/Megatron-MoE-ModelZoo-workspace/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/tensorboard
 )
 
-EVAL_ARGS=(
-    --eval-iters 32
-    --eval-interval 10000000
-)
+# EVAL_ARGS=(
+#     --eval-iters 32
+#     --eval-interval 10000000
+# )
 
 NETWORK_ARGS=(
     --disable-bias-linear
@@ -224,8 +235,13 @@ MLA_ARGS=(
 FP8_ARGS=(
     --fp8-recipe mxfp8
     --fp8-format e4m3
-    --delay-wgrad-compute
 )
+
+NEW_1F1A_ARGS=(
+    --delay-wgrad-compute
+    --overlap-moe-expert-parallel-comm
+)
+
 
 # ------------------------------
 # Launch
@@ -248,4 +264,5 @@ torchrun \
     ${MOE_ARGS[@]} \
     ${MLA_ARGS[@]} \
     ${FP8_ARGS[@]} \
+    ${NEW_1F1A_ARGS[@]} \
     "$@"
