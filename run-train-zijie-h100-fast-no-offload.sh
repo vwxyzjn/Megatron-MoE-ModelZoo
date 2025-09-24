@@ -208,7 +208,7 @@ MOE_ARGS=(
     --moe-router-dtype fp32
     --moe-permute-fusion
     # --moe-router-fusion
-    --moe-router-padding-for-fp8
+    # --moe-router-padding-for-fp8
 
     --moe-token-dispatcher-type alltoall
     # The following are not compatible with our EFA setup
