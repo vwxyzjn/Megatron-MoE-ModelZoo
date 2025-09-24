@@ -35,20 +35,6 @@ chmod +x /home/Megatron-LM/pretrain_gpt.py
 # NNODES=${SLURM_NNODES:-"1"}
 # NODE_RANK=${RANK:-"0"}
 
-host_lines="$(dig +short SRV _workers._tcp.training-peers.default.svc.cluster.local \
-| awk '{print $4}' \
-| sed 's/\.$//' \
-| grep -F -- "$JOB_NAME-" \
-| sort -V)"
-VC_WORKER_HOSTS="$(printf '%s\n' "$host_lines" | paste -sd',' -)"
-VC_WORKER_NUM="$(printf '%s\n' "$host_lines" | wc -l | tr -d ' ')"
-RDZV_HOST="${VC_WORKER_HOSTS%%,*}"
-echo "Using host ${RDZV_HOST}"
-
-MASTER_ADDR="${RDZV_HOST}"
-MASTER_PORT="29500"
-NNODES="${VC_WORKER_NUM}"
-echo "Running on $JOB_COMPLETION_INDEX"
 
 export TOKENIZERS_PARALLELISM=false # to avoid HF warnings
 
