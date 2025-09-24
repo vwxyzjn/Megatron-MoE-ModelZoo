@@ -67,30 +67,26 @@ PERF_ARGS=(
     --expert-model-parallel-size 32
     --context-parallel-size 1
     --expert-tensor-parallel-size 1
-
-    # layout
-    # `"Et*2|(tt|)*22t|(tt|)*7mL"` would include the `mtp` loss; the checkpoint we converted did not include the `mtp` loss
-    --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7L"
-    # --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL"
+    --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL"
 
     # Recompute args (activation checkpointing)
-    --recompute-granularity full
-    --recompute-method uniform
-    --recompute-num-layers 1
-    # Instead of the above, you can use selective recomputation
-    # but this doesn't really work well with our EFA setup
-    # --recompute-granularity selective
-    # --recompute-modules mla_up_proj moe mlp layernorm
+    # --recompute-granularity full
+    # --recompute-method uniform
+    # --recompute-num-layers 1
+    # # Instead of the above, you can use selective recomputation
+    # # but this doesn't really work well with our EFA setup
+    # # --recompute-granularity selective
+    --recompute-granularity selective
+    --recompute-modules mla_up_proj moe mlp layernorm
 
-    # Offload args
-    --optimizer-cpu-offload
-    --overlap-cpu-optimizer-d2h-h2d
+    # # Offload args
+    # --optimizer-cpu-offload
+    # --overlap-cpu-optimizer-d2h-h2d
 
-    # Overlap args
-    --overlap-grad-reduce
-    --overlap-param-gather
+    # # Overlap args
+    # --overlap-grad-reduce
+    # --overlap-param-gather
 )
-
 
 TRAINING_ARGS=(
     # Key args
@@ -117,6 +113,9 @@ TRAINING_ARGS=(
     # Training args
     --sequence-parallel
     --use-flash-attn
+
+
+    # Misc
     --no-save-optim
     --no-check-for-nan-in-loss-and-grad
     --cross-entropy-loss-fusion
@@ -124,8 +123,7 @@ TRAINING_ARGS=(
     --manual-gc
     --manual-gc-interval 10
     --transformer-impl transformer_engine
-    # --exit-duration-in-mins 220 # we don't want this to exit
-
+    
     # Regularization args
     --attention-dropout 0.0
     --hidden-dropout 0.0
@@ -147,9 +145,9 @@ TRAINING_ARGS=(
 )
 
 CHECKPOINTING_ARGS=(
-    --load /mnt/nvme/model
-    --save /mnt/nvme/model
-    --save-interval 500
+    --load /path/to/DeepSeek-V3-dist/torch_dist/
+    --save /mnt/home/costa/periodic-mono/thirdparty/Megatron-MoE-ModelZoo-workspace/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/checkpoints
+    --save-interval 10000000
     --no-load-optim
     --no-load-rng
     --auto-detect-ckpt-format
@@ -162,13 +160,13 @@ LOGGING_ARGS=(
     --log-throughput
     --log-interval 1
     --logging-level 40
-    --tensorboard-dir /mnt/nvme/model/tensorboard
+    --tensorboard-dir /mnt/home/costa/periodic-mono/thirdparty/Megatron-MoE-ModelZoo-workspace/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP4CP1-MBS1GBS8192/tensorboard
 )
 
-EVAL_ARGS=(
-    # --eval-iters 32
-    # --eval-interval 200
-)
+# EVAL_ARGS=(
+#     --eval-iters 10000
+#     --eval-interval 10000000
+# )
 
 NETWORK_ARGS=(
     --disable-bias-linear
@@ -194,6 +192,8 @@ MOE_ARGS=(
     --moe-shared-expert-intermediate-size 2048
     --moe-router-load-balancing-type seq_aux_loss
     --moe-router-topk 8
+    --moe-token-dispatcher-type flex
+    --moe-enable-deepep
     --moe-router-pre-softmax
     --moe-grouped-gemm
     --moe-aux-loss-coeff 1e-4
@@ -205,12 +205,7 @@ MOE_ARGS=(
     --moe-router-bias-update-rate 1e-3
     --moe-router-dtype fp32
     --moe-permute-fusion
-    --moe-token-dispatcher-type alltoall
-
-    # The following are not compatible with our EFA setup
-    # They are infiniband only: they can make the training go much faster
-    # --moe-enable-deepep
-    # --moe-token-dispatcher-type flex
+    --moe-router-padding-for-fp8
 )
 
 MLA_ARGS=(
@@ -222,8 +217,13 @@ MLA_ARGS=(
     --rotary-scaling-factor 40
     --mscale 1.0
     --mscale-all-dim 1.0
-    # --mtp-num-layers 1
-    # --mtp-loss-scaling-factor 0.1
+    --mtp-num-layers 1
+    --mtp-loss-scaling-factor 0.1
+)
+
+FP8_ARGS=(
+    --fp8-recipe blockwise
+    --fp8-format e4m3
 )
 
 torchrun \
@@ -238,4 +238,5 @@ torchrun \
     ${NETWORK_ARGS[@]} \
     ${MOE_ARGS[@]} \
     ${MLA_ARGS[@]} \
+    ${FP8_ARGS[@]} \
     "$@" # pass in extra or override arguments
