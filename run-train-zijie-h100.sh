@@ -243,7 +243,7 @@ MLA_ARGS=(
 )
 
 torchrun \
-    ${DISTRIBUTED_ARGS[@]} thirdparty/Megatron-LM-workspace/Megatron-LM/pretrain_gpt.py  \
+    ${DISTRIBUTED_ARGS[@]} /home/Megatron-LM/pretrain_gpt.py  \
     ${DATA_ARGS[@]} \
     ${TOKENIZER_ARGS[@]} \
     ${CHECKPOINTING_ARGS[@]} \
