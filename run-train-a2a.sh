@@ -104,7 +104,6 @@ NVSHMEM_DEBUG=INFO PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" OMP_NUM_TH
         --moe-router-load-balancing-type seq_aux_loss \
         --moe-router-topk 8 \
         --moe-token-dispatcher-type alltoall \
-        --moe-enable-deepep  \
         --moe-grouped-gemm  \
         --moe-aux-loss-coeff 1e-4 \
         --moe-router-group-topk 4 \
