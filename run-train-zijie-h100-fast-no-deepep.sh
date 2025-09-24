@@ -69,8 +69,8 @@ PERF_ARGS=(
     --expert-tensor-parallel-size 1
     # layout
     # `"Et*2|(tt|)*22t|(tt|)*7mL"` would include the `mtp` loss; the checkpoint we converted did not include the `mtp` loss
-    --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7L"
-    # --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL"
+    # --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7L"
+    --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL"
 
     # Recompute args (activation checkpointing)
     # --recompute-granularity full
