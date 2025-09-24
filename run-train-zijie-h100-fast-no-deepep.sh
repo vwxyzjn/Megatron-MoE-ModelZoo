@@ -67,10 +67,11 @@ PERF_ARGS=(
     --expert-model-parallel-size 32
     --context-parallel-size 1
     --expert-tensor-parallel-size 1
+
     # layout
     # `"Et*2|(tt|)*22t|(tt|)*7mL"` would include the `mtp` loss; the checkpoint we converted did not include the `mtp` loss
-    # --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7L"
-    --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL"
+    --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7L"
+    # --pipeline-model-parallel-layout "Et*2|(tt|)*22t|(tt|)*7mL"
 
     # Recompute args (activation checkpointing)
     # --recompute-granularity full
@@ -222,8 +223,8 @@ MLA_ARGS=(
     --rotary-scaling-factor 40
     --mscale 1.0
     --mscale-all-dim 1.0
-    --mtp-num-layers 1
-    --mtp-loss-scaling-factor 0.1
+    # --mtp-num-layers 1
+    # --mtp-loss-scaling-factor 0.1
 )
 
 FP8_ARGS=(
