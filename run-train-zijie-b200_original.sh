@@ -64,10 +64,9 @@ torchrun \
     --manual-gc-interval 10 \
     --transformer-impl transformer_engine \
     --seq-length 4096 \
-    --data-cache-path /home/ubuntu/Megatron-MoE-ModelZoo/data_cache \
     --tokenizer-type HuggingFaceTokenizer \
     --tokenizer-model deepseek-ai/DeepSeek-V3 \
-    --data-path mockdata \
+    --mock-data \
     --split 99,1,0 \
     --no-mmap-bin-files  \
     --no-create-attention-mask-in-dataloader  \
