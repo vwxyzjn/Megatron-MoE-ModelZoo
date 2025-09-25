@@ -232,9 +232,10 @@ MLA_ARGS=(
 )
 
 FP8_ARGS=(
-    --fp8-recipe mfxfp8
+    --fp8-recipe mxfp8
     --fp8-format e4m3
     --moe-router-padding-for-fp8
+    --fp8-param-gather --reuse-grad-buf-for-mxfp8-param-ag
 )
 
 NEW_1F1A_ARGS=(
