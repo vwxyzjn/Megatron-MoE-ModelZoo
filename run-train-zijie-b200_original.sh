@@ -1,0 +1,166 @@
+#!/bin/bash
+set -euxo pipefail
+
+nvidia-smi topo -m
+
+
+source /usr/local/gib/scripts/set_nccl_env.sh
+export NCCL_SOCKET_IFNAME="eth0,eth1"
+export NCCL_TUNER_CONFIG_PATH=/usr/local/gib/configs/tuner_config_a4.txtpb
+
+export TRITON_CACHE_DIR="/tmp/triton-cache/"
+#export NCCL_DEBUG=INFO
+export NCCL_DEBUG_SUBSYS=ALL
+export CUDA_DEVICE_MAX_CONNECTIONS=32
+export NVTE_FWD_LAYERNORM_SM_MARGIN=20
+export NVTE_BWD_LAYERNORM_SM_MARGIN=20
+export TORCH_NCCL_AVOID_RECORD_STREAMS=0
+export NVTE_ALLOW_NONDETERMINISTIC_ALGO=1
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+export NCCL_NVLS_ENABLE=0
+export NVTE_FUSED_ATTN=1
+export NVTE_NORM_FWD_USE_CUDNN=1
+export NVTE_NORM_BWD_USE_CUDNN=1
+export PYTHONWARNINGS=ignore
+export TOKENIZERS_PARALLELISM=false # to avoid HF warnings
+export DEEPEP_COMM_TIMEOUT_MS=30000
+
+DISTRIBUTED_ARGS=(
+    --nproc_per_node 8
+    --nnodes $NNODES
+    --node_rank $NODE_RANK
+    --master_addr $MASTER_ADDR
+    --master_port $MASTER_PORT
+    --rdzv_id="${JOB_IDENTIFIER}"
+    --rdzv_backend static
+)
+NVSHMEM_DEBUG=INFO \
+OMP_NUM_THREADS=8 \
+PYTHON_PATH=/home/Megatron-LM \
+TORCH_NCCL_ENABLE_MONITORING=0 \
+torchrun \
+    ${DISTRIBUTED_ARGS[@]} /home/Megatron-LM/pretrain_gpt.py \
+    --distributed-timeout-minutes 60 \
+    --tensor-model-parallel-size 1 \
+    --pipeline-model-parallel-size 8 \
+    --expert-model-parallel-size 32 \
+    --context-parallel-size 1 \
+    --expert-tensor-parallel-size 1 \
+    --use-distributed-optimizer  \
+    --overlap-grad-reduce  \
+    --overlap-param-gather  \
+    --use-mcore-models  \
+    --sequence-parallel  \
+    --use-flash-attn  \
+    --disable-bias-linear  \
+    --micro-batch-size 1 \
+    --global-batch-size 2048 \
+    --train-samples 10000 \
+    --no-save-optim  \
+    --no-check-for-nan-in-loss-and-grad  \
+    --cross-entropy-loss-fusion  \
+    --cross-entropy-fusion-impl te \
+    --manual-gc  \
+    --manual-gc-interval 10 \
+    --transformer-impl transformer_engine \
+    --seq-length 4096 \
+    --data-cache-path /home/ubuntu/Megatron-MoE-ModelZoo/data_cache \
+    --tokenizer-type HuggingFaceTokenizer \
+    --tokenizer-model deepseek-ai/DeepSeek-V3 \
+    --data-path mockdata \
+    --split 99,1,0 \
+    --no-mmap-bin-files  \
+    --no-create-attention-mask-in-dataloader  \
+    --num-workers 6 \
+    --num-layers 61 \
+    --hidden-size 7168 \
+    --ffn-hidden-size 18432 \
+    --num-attention-heads 128 \
+    --kv-channels 128 \
+    --max-position-embeddings 4096 \
+    --position-embedding-type rope \
+    --rotary-base 10000 \
+    --make-vocab-size-divisible-by 3232 \
+    --normalization RMSNorm \
+    --norm-epsilon 1e-6 \
+    --swiglu  \
+    --untie-embeddings-and-output-weights  \
+    --multi-latent-attention  \
+    --attention-dropout 0.0 \
+    --hidden-dropout 0.0 \
+    --clip-grad 1.0 \
+    --weight-decay 0.1 \
+    --qk-layernorm  \
+    --lr-decay-samples 584765624 \
+    --lr-warmup-samples 1536000 \
+    --lr-warmup-init 3.9e-7 \
+    --lr 3.9e-6 \
+    --min-lr 3.9e-7 \
+    --lr-decay-style cosine \
+    --adam-beta1 0.9 \
+    --adam-beta2 0.95 \
+    --num-experts 256 \
+    --moe-layer-freq "([0]*3+[1]*58)" \
+    --moe-ffn-hidden-size 2048 \
+    --moe-shared-expert-intermediate-size 2048 \
+    --moe-router-load-balancing-type seq_aux_loss \
+    --moe-router-topk 8 \
+    --moe-token-dispatcher-type flex \
+    --moe-enable-deepep  \
+    --moe-grouped-gemm  \
+    --moe-aux-loss-coeff 1e-4 \
+    --moe-router-group-topk 4 \
+    --moe-router-num-groups 8 \
+    --moe-router-topk-scaling-factor 2.5 \
+    --moe-router-score-function sigmoid \
+    --moe-router-enable-expert-bias  \
+    --moe-router-bias-update-rate 1e-3 \
+    --moe-router-dtype fp32 \
+    --moe-permute-fusion  \
+    --moe-router-fusion  \
+    --q-lora-rank 1536 \
+    --kv-lora-rank 512 \
+    --qk-head-dim 128 \
+    --qk-pos-emb-head-dim 64 \
+    --v-head-dim 128 \
+    --rotary-scaling-factor 40 \
+    --mscale 1.0 \
+    --mscale-all-dim 1.0 \
+    --mtp-num-layers 1 \
+    --mtp-loss-scaling-factor 0.1 \
+    --eval-iters 32 \
+    --eval-interval 200 \
+    --no-load-optim  \
+    --no-load-rng  \
+    --auto-detect-ckpt-format  \
+    --load /path/to/DeepSeek-V3-dist/torch_dist/ \
+    --save /home/ubuntu/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP1CP1-MBS1GBS2048/checkpoints \
+    --save-interval 500 \
+    --dist-ckpt-strictness log_all \
+    --init-method-std 0.02 \
+    --log-timers-to-tensorboard  \
+    --log-memory-to-tensorboard  \
+    --log-validation-ppl-to-tensorboard  \
+    --log-throughput  \
+    --log-interval 1 \
+    --logging-level 40 \
+    --tensorboard-dir /home/ubuntu/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP1CP1-MBS1GBS2048/tensorboard \
+    --wandb-project ubuntu-moe-benchmarking-vyour_own_megatron_version \
+    --wandb-exp-name DeepSeek-V3-TP1PP8EP32CP1VPP1-MBS1GBS2048-vyour_own_megatron_version \
+    --bf16  \
+    --enable-experimental   \
+    --recompute-granularity selective \
+    --recompute-modules mla_up_proj mlp \
+    --pipeline-model-parallel-layout "Et*3|(tt|)*29|mL" \
+    --fp8-recipe mxfp8 \
+    --fp8-format e4m3 \
+    --fp8-param-gather \
+    --reuse-grad-buf-for-mxfp8-param-ag \
+    --use-precision-aware-optimizer \
+    --main-grads-dtype fp32 \
+    --main-params-dtype fp32 \
+    --exp-avg-dtype bf16 \
+    --exp-avg-sq-dtype bf16 \
+    --moe-router-padding-for-fp8 \
+    --delay-wgrad-compute \
+    --overlap-moe-expert-parallel-comm

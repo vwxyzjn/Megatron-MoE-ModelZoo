@@ -1,0 +1,139 @@
+#!/bin/bash
+
+#SBATCH \
+    --nodes=32
+#SBATCH --account=root
+#SBATCH --partition=h200-high
+#SBATCH --ntasks-per-node=8
+#SBATCH --time=00:40:00
+#SBATCH --job-name=root-moe--benchmarking-250925_195211
+#SBATCH --dependency=singleton
+#SBATCH --output=/home/ubuntu/Megatron-MoE-ModelZoo/slurm.log
+#SBATCH --exclusive
+
+srun     --mpi=pmix -l     --ntasks-per-node=8     --container-image=876143322689.dkr.ecr.us-east-1.amazonaws.com/periodic-mono:megatron-moe-modelzoo-no-efa-te-transformer_engine_2.8.0.dev0-603dbf7     --container-mounts=/mnt/:/mnt/     --container-workdir=/mnt/home/costa/periodic-mono/thirdparty/Megatron-MoE-ModelZoo-workspace/Megatron-LM bash -c \ python /mnt/home/costa/periodic-mono/thirdparty/Megatron-MoE-ModelZoo-workspace/Megatron-LM/pretrain_gpt.py  \
+    --distributed-timeout-minutes 60 \
+    --tensor-model-parallel-size 1 \
+    --pipeline-model-parallel-size 8 \
+    --expert-model-parallel-size 32 \
+    --context-parallel-size 1 \
+    --expert-tensor-parallel-size 1 \
+    --use-distributed-optimizer  \
+    --overlap-grad-reduce  \
+    --overlap-param-gather  \
+    --use-mcore-models  \
+    --sequence-parallel  \
+    --use-flash-attn  \
+    --disable-bias-linear  \
+    --micro-batch-size 1 \
+    --global-batch-size 2048 \
+    --train-samples 585937500 \
+    --exit-duration-in-mins 220 \
+    --no-save-optim  \
+    --no-check-for-nan-in-loss-and-grad  \
+    --cross-entropy-loss-fusion  \
+    --cross-entropy-fusion-impl te \
+    --manual-gc  \
+    --manual-gc-interval 10 \
+    --transformer-impl transformer_engine \
+    --seq-length 4096 \
+    --data-cache-path /home/ubuntu/Megatron-MoE-ModelZoo/data_cache \
+    --tokenizer-type HuggingFaceTokenizer \
+    --tokenizer-model deepseek-ai/DeepSeek-V3 \
+    --data-path mockdata \
+    --split 99,1,0 \
+    --no-mmap-bin-files  \
+    --no-create-attention-mask-in-dataloader  \
+    --num-workers 6 \
+    --num-layers 61 \
+    --hidden-size 7168 \
+    --ffn-hidden-size 18432 \
+    --num-attention-heads 128 \
+    --kv-channels 128 \
+    --max-position-embeddings 4096 \
+    --position-embedding-type rope \
+    --rotary-base 10000 \
+    --make-vocab-size-divisible-by 3232 \
+    --normalization RMSNorm \
+    --norm-epsilon 1e-6 \
+    --swiglu  \
+    --untie-embeddings-and-output-weights  \
+    --multi-latent-attention  \
+    --attention-dropout 0.0 \
+    --hidden-dropout 0.0 \
+    --clip-grad 1.0 \
+    --weight-decay 0.1 \
+    --qk-layernorm  \
+    --lr-decay-samples 584765624 \
+    --lr-warmup-samples 1536000 \
+    --lr-warmup-init 3.9e-7 \
+    --lr 3.9e-6 \
+    --min-lr 3.9e-7 \
+    --lr-decay-style cosine \
+    --adam-beta1 0.9 \
+    --adam-beta2 0.95 \
+    --num-experts 256 \
+    --moe-layer-freq ([0]*3+[1]*58) \
+    --moe-ffn-hidden-size 2048 \
+    --moe-shared-expert-intermediate-size 2048 \
+    --moe-router-load-balancing-type seq_aux_loss \
+    --moe-router-topk 8 \
+    --moe-token-dispatcher-type flex \
+    --moe-enable-deepep  \
+    --moe-grouped-gemm  \
+    --moe-aux-loss-coeff 1e-4 \
+    --moe-router-group-topk 4 \
+    --moe-router-num-groups 8 \
+    --moe-router-topk-scaling-factor 2.5 \
+    --moe-router-score-function sigmoid \
+    --moe-router-enable-expert-bias  \
+    --moe-router-bias-update-rate 1e-3 \
+    --moe-router-dtype fp32 \
+    --moe-permute-fusion  \
+    --moe-router-fusion  \
+    --q-lora-rank 1536 \
+    --kv-lora-rank 512 \
+    --qk-head-dim 128 \
+    --qk-pos-emb-head-dim 64 \
+    --v-head-dim 128 \
+    --rotary-scaling-factor 40 \
+    --mscale 1.0 \
+    --mscale-all-dim 1.0 \
+    --mtp-num-layers 1 \
+    --mtp-loss-scaling-factor 0.1 \
+    --eval-iters 32 \
+    --eval-interval 200 \
+    --no-load-optim  \
+    --no-load-rng  \
+    --auto-detect-ckpt-format  \
+    --load /path/to/DeepSeek-V3-dist/torch_dist/ \
+    --save /home/ubuntu/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP1CP1-MBS1GBS2048/checkpoints \
+    --save-interval 500 \
+    --dist-ckpt-strictness log_all \
+    --init-method-std 0.02 \
+    --log-timers-to-tensorboard  \
+    --log-memory-to-tensorboard  \
+    --log-validation-ppl-to-tensorboard  \
+    --log-throughput  \
+    --log-interval 1 \
+    --logging-level 40 \
+    --tensorboard-dir /home/ubuntu/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP1CP1-MBS1GBS2048/tensorboard \
+    --wandb-project ubuntu-moe-benchmarking-vyour_own_megatron_version \
+    --wandb-exp-name DeepSeek-V3-TP1PP8EP32CP1VPP1-MBS1GBS2048-vyour_own_megatron_version \
+    --bf16  \
+    --enable-experimental   \
+    --recompute-granularity selective \
+    --recompute-modules mla_up_proj mlp \
+    --pipeline-model-parallel-layout Et*3|(tt|)*29|mL \
+    --fp8-recipe mxfp8 \
+    --fp8-format e4m3 \
+    --fp8-param-gather \
+    --reuse-grad-buf-for-mxfp8-param-ag \
+    --use-precision-aware-optimizer \
+    --main-grads-dtype fp32 \
+    --main-params-dtype fp32 \
+    --exp-avg-dtype bf16 \
+    --exp-avg-sq-dtype bf16 \
+    --moe-router-padding-for-fp8 \
+    --delay-wgrad-compute \
+    --overlap-moe-expert-parallel-comm 2>&1 | tee /home/ubuntu/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP1CP1-MBS1GBS2048/slurm_logs/${SLURM_JOB_ID}.log
