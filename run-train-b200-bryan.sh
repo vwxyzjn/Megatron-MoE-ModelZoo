@@ -112,7 +112,7 @@ TRAINING_ARGS=(
     --adam-beta2 0.95
 
     # Distributed optimizer args
-    --use-distributed-optimizer
+    # --use-distributed-optimizer
     --use-precision-aware-optimizer
     --main-grads-dtype fp32
     --main-params-dtype fp32
