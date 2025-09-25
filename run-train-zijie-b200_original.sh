@@ -145,8 +145,6 @@ torchrun \
     --log-interval 1 \
     --logging-level 40 \
     --tensorboard-dir /home/ubuntu/Megatron-MoE-ModelZoo/output/mcore-benchmarking-vyour_own_megatron_version/DeepSeek-V3-TP1PP8EP32VPP1CP1-MBS1GBS2048/tensorboard \
-    --wandb-project ubuntu-moe-benchmarking-vyour_own_megatron_version \
-    --wandb-exp-name DeepSeek-V3-TP1PP8EP32CP1VPP1-MBS1GBS2048-vyour_own_megatron_version \
     --bf16  \
     --enable-experimental   \
     --recompute-granularity selective \
