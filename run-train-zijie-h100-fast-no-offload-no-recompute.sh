@@ -226,8 +226,8 @@ MLA_ARGS=(
     --rotary-scaling-factor 40
     --mscale 1.0
     --mscale-all-dim 1.0
-    # --mtp-num-layers 1
-    # --mtp-loss-scaling-factor 0.1
+    --mtp-num-layers 1
+    --mtp-loss-scaling-factor 0.1
 )
 
 FP8_ARGS=(
